@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap">
 <style>
 :root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
-html,body{margin:0}
+html,body{margin:0;overflow-x:hidden}
 [hidden]{display:none!important}
 /* Layout: one-column phone app, sticky top bar + bottom tab bar; kid mode = big colorful tiles, parent mode = calm lists */
 :root{
@@ -62,6 +62,15 @@ h2{font-size:16px;font-weight:900;margin:22px 0 10px}
 .mission .box svg{width:44px;height:44px;overflow:visible}
 .mission.done .box svg{animation:pop .35s ease-out}
 @keyframes pop{0%{transform:scale(.3) rotate(-40deg);opacity:0}100%{transform:none;opacity:1}}
+.test-row{align-items:center}
+.test-row.good{background:var(--pink-soft)}
+.tstamp{width:46px;height:46px;flex:none;display:grid;place-items:center;position:relative}
+.tstamp svg{width:46px;height:46px;overflow:visible;animation:pop .35s ease-out}
+.tpen{font-size:20px;opacity:.55}
+.tfull{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#F7D774,#D9A21B);color:#3A2A00;font-size:9px;font-weight:900;border-radius:999px;padding:0 5px;white-space:nowrap}
+.tscore{font-weight:900;font-size:22px;white-space:nowrap;line-height:1}
+.tscore small{font-size:11px;margin-left:1px;font-weight:700}
+.tscore.good{color:var(--pink)}
 .mission .meta{font-size:12px;color:var(--muted);font-weight:500}
 .mission .tag{margin-left:auto;font-size:13px;color:var(--pink);font-weight:900}
 .mission:active{transform:scale(.98)}
@@ -101,12 +110,13 @@ button[disabled]{opacity:.35;cursor:default}
 .plus{color:var(--mint)}.minus{color:var(--pink)}
 .empty{color:var(--muted);font-size:13px;padding:14px;text-align:center;background:var(--surface);border:1.5px dashed var(--line);border-radius:16px}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
-nav.tabs .in{max-width:540px;margin:0 auto;display:grid;grid-auto-flow:column;grid-auto-columns:1fr}
+nav.tabs .in{max-width:540px;margin:0 auto;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+nav.tabs button{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:clip}
 nav.tabs button{border:none;background:none;color:var(--muted);font:700 11px var(--font);padding:8px 2px 10px;display:grid;justify-items:center;gap:2px;cursor:pointer}
 nav.tabs button .ic{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:17px}
 nav.tabs button[aria-current="true"]{color:var(--fg)}
 nav.tabs button[aria-current="true"] .ic{background:var(--blue-soft)}
-.kid nav.tabs button{font-size:10px;padding-inline:0}
+.kid nav.tabs button{font-size:9.5px;padding-inline:0;letter-spacing:-.03em}
 .kid nav.tabs button .ic{width:26px;height:26px;font-size:15px}
 .btn{border:none;border-radius:12px;padding:10px 16px;font:700 14px var(--font);cursor:pointer;background:var(--blue);color:var(--on-accent)}
 .btn.ghost{background:var(--surface2);color:var(--fg)}
@@ -200,16 +210,20 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function itemsFor(dateStr){var dow=parse(dateStr).getDay();return set().checkItems.filter(function(c){return (c.days||[]).indexOf(dow)>=0})}
 function doneFor(dateStr){return (S.checks[dateStr]&&S.checks[dateStr].done)||{}}
 function dayRate(dateStr){var it=itemsFor(dateStr),d=doneFor(dateStr),n=0;it.forEach(function(c){if(d[c.id])n++});return {n:n,total:it.length}}
-function totalStars(){var t=0;Object.keys(S.checks).forEach(function(k){var d=S.checks[k].done||{};Object.keys(d).forEach(function(x){if(d[x])t++})});return t}
-function coinsOn(k){var d=(S.checks[k]&&S.checks[k].done)||{},t=0;Object.keys(d).forEach(function(x){if(d[x])t++});return t}
-function coinsByMonth(y){var a=[0,0,0,0,0,0,0,0,0,0,0,0];Object.keys(S.checks).forEach(function(k){if(k.slice(0,4)===String(y))a[+k.slice(5,7)-1]+=coinsOn(k)});return a}
+function goodTest(t){var p=testPct(t);return p!=null&&p>=hanaLine()}
+function coinDates(){var m={};Object.keys(S.checks).forEach(function(k){m[k]=1});S.tests.forEach(function(t){if(t.date)m[t.date]=1});return Object.keys(m)}
+function coinsOn(k){var d=(S.checks[k]&&S.checks[k].done)||{},t=0;Object.keys(d).forEach(function(x){if(d[x])t++});S.tests.forEach(function(x){if(x.date===k&&goodTest(x))t++});return t}
+function totalStars(){var t=0;coinDates().forEach(function(k){t+=coinsOn(k)});return t}
+function coinsByMonth(y){var a=[0,0,0,0,0,0,0,0,0,0,0,0];coinDates().forEach(function(k){if(k.slice(0,4)===String(y))a[+k.slice(5,7)-1]+=coinsOn(k)});return a}
 function streak(){var d=new Date(),c=0;var r=dayRate(ymd(d));if(!(r.total&&r.n===r.total))d.setDate(d.getDate()-1);
   for(var i=0;i<400;i++){var s=ymd(d),rr=dayRate(s);if(rr.total===0){d.setDate(d.getDate()-1);continue}if(rr.n===rr.total){c++;d.setDate(d.getDate()-1)}else break}return c}
 function balance(){var b=+set().startBalance||0;S.money.forEach(function(m){b+=(+m.amount||0)});return b}
-function itemsOn(dateStr){
+function itemsOn(dateStr,withSkipped){
   var out=[],dow=parse(dateStr).getDay();
   S.events.forEach(function(e){if(e.date===dateStr)out.push({kind:e.kind||"home",time:e.time||"",title:e.title,memo:e.memo,id:e.id,type:"event"})});
-  set().lessons.forEach(function(l){if(+l.day===dow)out.push({kind:"lesson",time:l.time||"",title:l.name,memo:[l.place,l.items?"持ち物："+l.items:""].filter(Boolean).join("／"),type:"lesson"})});
+  var skips=set().lessonSkips||{};
+  set().lessons.forEach(function(l){if(+l.day!==dow)return;var sk=!!skips[l.id+"_"+dateStr];if(sk&&!withSkipped)return;
+    out.push({kind:"lesson",time:l.time||"",title:l.name,memo:sk?"この日は お休み":[l.place,l.items?"持ち物："+l.items:""].filter(Boolean).join("／"),type:sk?"lessonSkip":"lesson",id:l.id})});
   S.tests.forEach(function(t){if(t.date===dateStr)out.push({kind:"test",time:"",title:t.subject+"・"+t.unit,memo:"",type:"test"})});
   S.goals.forEach(function(g){if(g.due===dateStr)out.push({kind:"goal",time:"",title:(g.type==="deadline"?"しめきり：":"もくひょう：")+g.title,memo:g.memo,type:"goal"})});
   S.money.forEach(function(m){if(m.date===dateStr)out.push({kind:"money",time:"",title:(m.note||"お小遣い")+" "+yen(m.amount),memo:"",type:"money"})});
@@ -263,7 +277,7 @@ function kidStars(){
     return '<div class="mb '+stt+(i===best&&stt!=="future"?" best":"")+'"><div class="mv">'+(stt==="future"?"":v)+'</div><div class="mt"><i style="height:'+h+'%"></i></div><div class="ml">'+(i+1)+'</div></div>'}).join("");
   var rows=arr.map(function(v,i){var stt=state(i);if(stt==="future")return "";
     return '<div class="li"><div class="main">'+(i+1)+'がつ'+(i===best?' <span class="badge on">いちばん</span>':"")+'</div><div class="meta">'+(stt==="closed"?"しめ ✓":"いま あつめちゅう")+'</div><div class="amt">'+coin(16)+' '+v+'</div></div>'}).filter(Boolean).reverse();
-  return '<h1>がんばり コイン</h1><div class="sub">はなまるや やくそくで コインが ふえるよ。まいつき つきの さいごの ひで しめるよ</div>'+
+  return '<h1>がんばり コイン</h1><div class="sub">はなまる・やくそく・はなまるテストで コインが ふえるよ。まいつき つきの さいごの ひで しめるよ</div>'+
   '<div class="card hero t-gold" style="margin-top:12px"><div style="flex:none">'+coin(56)+'</div><div class="grow"><div class="k" style="font-weight:700;font-size:13px">こんげつ（'+(cm+1)+'がつ）の コイン</div><div style="font-size:30px;font-weight:900;line-height:1.2">'+thisMonth+' まい</div><div style="font-size:12px">'+(leftDays>0?"しめまで あと "+leftDays+"にち":"きょうで しめ！")+'</div></div></div>'+
   '<div class="calhead" style="margin-top:18px"><button class="btn small ghost" data-act="cy" data-v="-1" aria-label="まえの とし">◀</button><b>'+y+'ねんの コイン</b><button class="btn small ghost" data-act="cy" data-v="1" aria-label="つぎの とし"'+(y>=cy?" disabled":"")+'>▶</button></div>'+
   '<div class="card"><div class="mbars">'+bars+'</div><div class="row" style="justify-content:space-between;margin-top:10px;font-size:13px"><span>ねんかん ごうけい <b>'+yt+' まい</b></span><span>'+(best>=0?"いちばん："+(best+1)+"がつ（"+bv+"まい）":"")+'</span></div></div>'+
@@ -272,12 +286,19 @@ function kidStars(){
   '<h2>バッジ</h2><div class="badges">'+marks.map(function(m){return '<span class="badge'+(st>=m?" on":"")+'">'+(st>=m?coin(16):"・")+" コイン"+m+"まい</span>"}).join("")+'</div>'+
   '<h2>この1しゅうかん</h2>'+weekRows()}
 function weekRows(){var rows=[],d=new Date();d.setDate(d.getDate()-6);for(var i=0;i<7;i++){var s=ymd(d),r=dayRate(s);rows.push('<div class="li"><div class="main">'+jdate(s)+'</div><div class="amt">'+(r.total?"💮 "+r.n+"/"+r.total:"おやすみ")+'</div></div>');d.setDate(d.getDate()+1)}return '<div class="list">'+rows.join("")+"</div>"}
+function hanaLine(){var v=+set().hanamaruLine;return v>0?v:80}
+function testPct(t){if(t.score===""||t.score==null)return null;var m=+t.max||100;return (+t.score)/m*100}
+function scoreText(t,kid){if(t.score===""||t.score==null)return "—";var m=+t.max||100;return m===100?t.score+'<small>'+(kid?"てん":"点")+'</small>':t.score+'<small>/'+m+'</small>'}
+function testRow(t,kid){var p=testPct(t),good=p!=null&&p>=hanaLine(),full=p!=null&&p>=100;
+  var note=t.reviewed?(kid?"✅ ふくしゅう できた":"✅ 復習済"):(p==null||good?"":(kid?"ふくしゅうで もっと つよく なれるよ":"復習するとさらに定着します"));
+  return '<div class="li test-row'+(good?" good":"")+'"><div class="tstamp">'+(good?hanamaru():'<span class="tpen">✏️</span>')+(full?'<span class="tfull">'+(kid?"まんてん":"満点")+'</span>':"")+'</div><div class="main"><div><span class="pill k-test">'+esc(t.subject)+'</span> '+esc(t.unit)+'</div><div class="meta">'+jdate(t.date)+(note?" ・"+note:"")+(!kid&&t.missed?" ・"+esc(t.missed):"")+(!kid&&!t.showChild?" ・子ども画面に非表示":"")+'</div></div><div class="tscore'+(good?" good":"")+'">'+scoreText(t,kid)+'</div>'+
+    (kid?"":'<button class="btn small '+(t.reviewed?"":"ghost")+'" data-act="rev" data-id="'+t.id+'">'+(t.reviewed?"復習済":"未復習")+'</button><button class="btn small warn" data-act="deltest" data-id="'+t.id+'" aria-label="削除">✕</button>')+'</div>'}
 function kidStudy(){
   var ts=S.tests.filter(function(t){return t.showChild}).sort(function(a,b){return b.date.localeCompare(a.date)});
-  var rev=ts.filter(function(t){return t.reviewed}).length;
-  return '<h1>べんきょう</h1><div class="sub">わかった ところ・ふくしゅうした ところ</div>'+
-  '<div class="tiles" style="margin-top:12px"><div class="tile t-blue"><div class="k">きろくした テスト</div><div class="v">'+ts.length+'</div></div><div class="tile t-mint"><div class="k">ふくしゅう できた</div><div class="v">'+rev+'</div></div></div><h2>テストの きろく</h2>'+
-  listOrEmpty(ts.map(function(t){return '<div class="li"><span class="pill k-test">'+esc(t.subject)+'</span><div class="main"><div>'+esc(t.unit)+'</div><div class="meta">'+jdate(t.date)+'</div></div><div class="amt">'+(t.reviewed?"✅ ふくしゅう":"これから")+'</div></div>'}),"まだ きろくは ないよ")}
+  var rev=ts.filter(function(t){return t.reviewed}).length,hm=ts.filter(function(t){var p=testPct(t);return p!=null&&p>=hanaLine()}).length;
+  return '<h1>べんきょう</h1><div class="sub">'+hanaLine()+'てん いじょうで はなまる＆コイン1まい！ ふくしゅうも だいじだよ</div>'+
+  '<div class="tiles" style="margin-top:12px"><div class="tile t-pink"><div class="k">はなまる テスト</div><div class="v">💮 '+hm+'</div></div><div class="tile t-mint"><div class="k">ふくしゅう できた</div><div class="v">'+rev+'</div></div></div><h2>テストの きろく（'+ts.length+'）</h2>'+
+  listOrEmpty(ts.map(function(t){return testRow(t,true)}),"まだ きろくは ないよ")}
 function kidSchedule(){
   var end=new Date();end.setMonth(end.getMonth()+3);var days=Math.round((end-new Date())/864e5);
   var up=upcoming(days).filter(function(x){return x.type!=="money"}),out="",cur="";
@@ -337,8 +358,11 @@ function pCalendar(){
   for(var i=0;i<42;i++){var d=new Date(start);d.setDate(start.getDate()+i);var s=ymd(d),its=itemsOn(s),kinds={};its.forEach(function(x){kinds[x.kind]=1});
     cells+='<button class="day'+(d.getMonth()!==mo?" out":"")+(s===t?" today":"")+(s===sel?" sel":"")+'" data-act="selday" data-d="'+s+'" aria-label="'+jdate(s)+" 予定"+its.length+'件"><span class="n">'+d.getDate()+'</span><span class="dots">'+Object.keys(kinds).map(function(k){return '<i class="d-'+k+'"></i>'}).join("")+"</span></button>"}
   var dows=DOW.map(function(w,i){return '<div class="dow'+(i===0?" sun":i===6?" sat":"")+'">'+w+"</div>"}).join("");
-  var its=itemsOn(sel),parent=S.mode==="parent";
-  var rows=its.map(function(x){return '<div class="li"><span class="pill k-'+x.kind+'">'+KINDS[x.kind]+'</span><div class="main"><div>'+esc(x.title)+'</div><div class="meta">'+esc(x.time)+(x.memo?" ・"+esc(x.memo):"")+'</div></div>'+(parent&&x.type==="event"?'<button class="btn small warn" data-act="delevent" data-id="'+x.id+'" aria-label="削除">✕</button>':"")+"</div>"});
+  var its=itemsOn(sel,S.mode==="parent"),parent=S.mode==="parent";
+  var rows=its.map(function(x){return '<div class="li"><span class="pill k-'+x.kind+'">'+KINDS[x.kind]+'</span><div class="main"><div'+(x.type==="lessonSkip"?' style="text-decoration:line-through;color:var(--muted)"':"")+'>'+esc(x.title)+'</div><div class="meta">'+esc(x.time)+(x.memo?" ・"+esc(x.memo):"")+'</div></div>'+
+    (parent&&x.type==="event"?'<button class="btn small warn" data-act="delevent" data-id="'+x.id+'" aria-label="削除">✕</button>':"")+
+    (parent&&x.type==="lesson"?'<button class="btn small warn" data-act="skiplesson" data-id="'+esc(x.id)+'" data-d="'+sel+'">この日は休み</button>':"")+
+    (parent&&x.type==="lessonSkip"?'<button class="btn small ghost" data-act="unskiplesson" data-id="'+esc(x.id)+'" data-d="'+sel+'">元に戻す</button>':"")+"</div>"});
   return '<h1>カレンダー</h1><div class="cal" style="margin-top:10px"><div class="calhead"><button class="btn small ghost" data-act="mon" data-v="-1" aria-label="前の月">◀</button><b>'+y+'年'+(mo+1)+'月</b><button class="btn small ghost" data-act="mon" data-v="1" aria-label="次の月">▶</button></div><div class="grid7">'+dows+cells+'</div><div class="legend">'+Object.keys(KINDS).map(function(k){return '<span><i class="dots"><i class="d-'+k+'"></i></i>'+KINDS[k]+"</span>"}).join("")+'</div></div>'+
   '<h2>'+jdate(sel)+'</h2>'+listOrEmpty(rows,"この日の予定はありません")+
   (parent?'<h2>予定を追加</h2><form class="f card" id="addevent"><div class="two"><label>日付<input id="ev-date" type="date" required value="'+sel+'"></label><label>時間<input id="ev-time" type="time"></label></div><label>内容<input id="ev-title" required maxlength="40" placeholder="授業参観"></label><div class="two"><label>種類<select id="ev-kind"><option value="school">学校</option><option value="home">家庭</option><option value="lesson">習い事（臨時）</option><option value="test">テスト</option></select></label><label>メモ<input id="ev-memo" maxlength="60" placeholder="持ち物など"></label></div><button class="btn" type="submit">追加する</button></form>':"")+
@@ -350,7 +374,7 @@ function pTests(){
   return '<h1>テスト記録</h1><div class="sub">点数の良し悪しより、理解できた単元と復習の状況を残します</div>'+
   '<h2>記録する</h2><form class="f card" id="addtest"><div class="two"><label>日付<input id="t-date" type="date" required value="'+today()+'"></label><label>教科<select id="t-sub">'+SUBJECTS.map(function(s){return "<option>"+s+"</option>"}).join("")+'</select></label></div><label>単元<input id="t-unit" required maxlength="30" placeholder="かけ算（2のだん）"></label><div class="two"><label>得点<input id="t-score" type="number" inputmode="numeric" min="0" placeholder="90"></label><label>満点<input id="t-max" type="number" inputmode="numeric" min="1" value="100"></label></div><label>間違えた問題・メモ<textarea id="t-miss" rows="2" maxlength="200" placeholder="くり上がりのある問題"></textarea></label><label class="chk"><input type="checkbox" id="t-rev"> 復習済み</label><label class="chk"><input type="checkbox" id="t-show" checked> 子ども画面に表示する</label><button class="btn" type="submit">記録する</button><div class="sub">テスト写真の保存は第2段階で追加予定です</div></form>'+
   '<h2>一覧</h2><div class="seg" style="margin-bottom:10px">'+subs.map(function(s){return '<button data-act="tf" data-v="'+s+'" aria-pressed="'+(f===s)+'">'+(s==="all"?"すべて":s)+"</button>"}).join("")+'</div>'+
-  listOrEmpty(ts.map(function(t){var sc=t.score!==""&&t.score!=null?t.score+" / "+(t.max||100):"—";return '<div class="li"><span class="pill k-test">'+esc(t.subject)+'</span><div class="main"><div>'+esc(t.unit)+' <span class="meta">'+sc+'</span></div><div class="meta">'+jdate(t.date)+(t.missed?" ・"+esc(t.missed):"")+(t.showChild?"":" ・子ども画面に非表示")+'</div></div><button class="btn small '+(t.reviewed?"":"ghost")+'" data-act="rev" data-id="'+t.id+'">'+(t.reviewed?"復習済":"未復習")+'</button><button class="btn small warn" data-act="deltest" data-id="'+t.id+'" aria-label="削除">✕</button></div>'}),"テスト記録はまだありません")}
+  listOrEmpty(ts.map(function(t){return testRow(t,false)}),"テスト記録はまだありません")}
 function pMoney(){
   var hist=S.money.slice().sort(function(a,b){return (b.date+b.created).localeCompare(a.date+a.created)});
   return '<h1>お小遣い管理</h1><div class="card hero" style="background:var(--purple-soft);margin-top:10px"><div class="grow"><div class="sub" style="font-weight:700">アプリ上の残高</div><div style="font-size:30px;font-weight:900">'+yen(balance())+'</div></div></div>'+
@@ -362,7 +386,7 @@ function pMoney(){
 function pSettings(){
   var s=set();
   return '<h1>設定</h1><div class="sub">ここでの変更は親子どちらの端末にも反映されます</div>'+
-  '<h2>基本</h2><form class="f card" id="basic"><div class="two"><label>ニックネーム<input id="s-nick" maxlength="12" value="'+esc(s.nickname)+'" placeholder="まるくん"></label><label>保護者PIN（4桁）<input id="s-pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" value="'+esc(s.pin)+'"></label></div><div class="two"><label>お小遣いの初期残高<input id="s-start" type="number" inputmode="numeric" min="0" value="'+(+s.startBalance||0)+'"></label><label>貯金目標の金額<input id="s-goal" type="number" inputmode="numeric" min="0" value="'+(+s.goalAmount||0)+'"></label></div><label>貯金目標の名前<input id="s-goalname" maxlength="20" value="'+esc(s.goalName)+'" placeholder="ずかん"></label><button class="btn" type="submit">保存する</button></form>'+
+  '<h2>基本</h2><form class="f card" id="basic"><div class="two"><label>ニックネーム<input id="s-nick" maxlength="12" value="'+esc(s.nickname)+'" placeholder="まるくん"></label><label>保護者PIN（4桁）<input id="s-pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" value="'+esc(s.pin)+'"></label></div><div class="two"><label>お小遣いの初期残高<input id="s-start" type="number" inputmode="numeric" min="0" value="'+(+s.startBalance||0)+'"></label><label>貯金目標の金額<input id="s-goal" type="number" inputmode="numeric" min="0" value="'+(+s.goalAmount||0)+'"></label></div><label>貯金目標の名前<input id="s-goalname" maxlength="20" value="'+esc(s.goalName)+'" placeholder="ずかん"></label><label>テストのはなまる基準（点・100点満点換算）<input id="s-line" type="number" inputmode="numeric" min="1" max="100" value="'+hanaLine()+'"></label><button class="btn" type="submit">保存する</button></form>'+
   '<h2>毎日のチェック項目</h2>'+listOrEmpty(s.checkItems.map(function(c){return '<div class="li"><div class="main"><div>'+esc(c.label)+'</div><div class="meta">'+(c.days.length===7?"毎日":c.days.map(function(x){return DOW[x]}).join("・"))+'</div></div><button class="btn small warn" data-act="delcheck" data-id="'+esc(c.id)+'" aria-label="削除">✕</button></div>'}),"項目がありません")+
   '<form class="f card" id="addcheck" style="margin-top:10px"><label>項目名（ひらがな推奨）<input id="c-label" required maxlength="16" placeholder="なわとび"></label><div class="seg" id="c-days">'+DOW.map(function(w,i){return '<button type="button" data-act="cday" data-v="'+i+'" aria-pressed="true">'+w+"</button>"}).join("")+'</div><button class="btn" type="submit">追加する</button></form>'+
   '<h2>習い事（毎週の予定）</h2>'+listOrEmpty(s.lessons.map(function(l){return '<div class="li"><span class="pill k-lesson">'+DOW[l.day]+'</span><div class="main"><div>'+esc(l.name)+' <span class="meta">'+esc(l.time)+'</span></div><div class="meta">'+[l.place,l.fee?"月謝 "+yen(+l.fee):"",l.items?"持ち物："+l.items:""].filter(Boolean).map(esc).join(" ・")+'</div></div><button class="btn small warn" data-act="dellesson" data-id="'+esc(l.id)+'" aria-label="削除">✕</button></div>'}),"習い事はまだありません")+
@@ -395,6 +419,7 @@ function go(tab){S.tab=tab;render();window.scrollTo(0,0)}
 document.addEventListener("click",function(e){
   var b=e.target.closest("[data-act]");if(!b)return;var a=b.dataset.act,id=b.dataset.id,v=b.dataset.v;
   if(a==="tab")return go(v);
+  if(a==="skiplesson"||a==="unskiplesson"){var skm=Object.assign({},set().lessonSkips||{}),key=id+"_"+b.dataset.d;if(a==="skiplesson")skm[key]=true;else delete skm[key];saveSettings({lessonSkips:skm});toast(a==="skiplesson"?"この日をお休みにしました":"元に戻しました");return}
   if(a==="logout"){firebase.auth().signOut();return}
   if(a==="mode"){if(S.mode==="kid"){S.pinOpen=true;S.pinErr="";render()}else{S.mode="kid";ls("mgb-mode","kid");go("home")}return}
   if(a==="pincancel"){S.pinOpen=false;render();return}
@@ -434,10 +459,10 @@ document.addEventListener("submit",function(e){
   if(f==="addwant"){addDoc("wishes",{type:"want",name:val("w-name"),price:+val("w-price")||0,memo:val("w-memo"),got:false});toast("ついかしたよ");return}
   if(f==="addlike"){addDoc("wishes",{type:"like",name:val("lk-name"),cat:val("lk-cat"),memo:val("lk-memo")});toast("ついかしたよ");return}
   if(f==="addevent"){addDoc("events",{date:val("ev-date"),time:val("ev-time"),title:val("ev-title"),kind:val("ev-kind"),memo:val("ev-memo")});S.selDate=val("ev-date");toast("追加しました");return}
-  if(f==="addtest"){addDoc("tests",{date:val("t-date"),subject:val("t-sub"),unit:val("t-unit"),score:val("t-score")===""?"":+val("t-score"),max:+val("t-max")||100,missed:val("t-miss"),reviewed:document.getElementById("t-rev").checked,showChild:document.getElementById("t-show").checked});toast("記録しました");return}
+  if(f==="addtest"){addDoc("tests",{date:val("t-date"),subject:val("t-sub"),unit:val("t-unit"),score:val("t-score")===""?"":+val("t-score"),max:+val("t-max")||100,missed:val("t-miss"),reviewed:document.getElementById("t-rev").checked,showChild:document.getElementById("t-show").checked});var tp=val("t-score")===""?null:(+val("t-score"))/(+val("t-max")||100)*100;toast(tp!=null&&tp>=hanaLine()?"💮 はなまる！ コインが1枚ふえました":"記録しました");return}
   if(f==="addmoney"){var a2=Math.abs(+val("m-amt"));if(!a2)return;var inn=val("m-kind")==="in";addDoc("money",{date:val("m-date"),amount:inn?a2:-a2,note:val("m-note")||(inn?"お小遣い":"支出"),kind:inn?"in":"out",by:"parent",confirmed:true});toast("記録しました");return}
   if(f==="adjust"){var diff=(+val("a-cash"))-balance();if(diff===0){toast("差額はありません");return}addDoc("money",{date:today(),amount:diff,note:"残高調整",kind:"adjust",by:"parent",confirmed:true});toast("調整しました");return}
-  if(f==="basic"){var pin=val("s-pin");if(!/^\d{4}$/.test(pin)){toast("PINは数字4桁にしてください");return}saveSettings({nickname:val("s-nick"),pin:pin,startBalance:+val("s-start")||0,goalAmount:+val("s-goal")||0,goalName:val("s-goalname")});toast("保存しました");return}
+  if(f==="basic"){var pin=val("s-pin");if(!/^\d{4}$/.test(pin)){toast("PINは数字4桁にしてください");return}saveSettings({nickname:val("s-nick"),pin:pin,startBalance:+val("s-start")||0,goalAmount:+val("s-goal")||0,goalName:val("s-goalname"),hanamaruLine:Math.min(100,Math.max(1,+val("s-line")||80))});toast("保存しました");return}
   if(f==="addcheck"){var days=[].slice.call(document.querySelectorAll('#c-days [aria-pressed="true"]')).map(function(x){return +x.dataset.v});if(!days.length){toast("曜日を1つ以上選んでください");return}saveSettings({checkItems:set().checkItems.concat([{id:uid(),label:val("c-label"),days:days}])});toast("追加しました");return}
   if(f==="addlesson"){saveSettings({lessons:set().lessons.concat([{id:uid(),name:val("l-name"),place:val("l-place"),day:+val("l-day"),time:val("l-time"),fee:+val("l-fee")||0,items:val("l-items")}])});toast("追加しました");return}
 });
