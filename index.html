@@ -63,6 +63,12 @@ h2{font-size:16px;font-weight:900;margin:22px 0 10px}
 .mission.done .box svg{animation:pop .35s ease-out}
 @keyframes pop{0%{transform:scale(.3) rotate(-40deg);opacity:0}100%{transform:none;opacity:1}}
 .test-row{align-items:center}
+.photo-btn{display:flex;align-items:center;justify-content:center;gap:6px;font-size:15px;padding:14px 16px;text-align:center}
+.sheet.wide{max-width:520px;max-height:86vh;overflow:auto;-webkit-overflow-scrolling:touch}
+.imp-item{display:grid;gap:8px;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px}
+.imp-item.off{opacity:.5}
+.spin{width:36px;height:36px;border-radius:50%;border:4px solid var(--surface2);border-top-color:var(--blue);animation:spin 1s linear infinite;margin:8px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
 .test-row.good{background:var(--pink-soft)}
 .tstamp{width:46px;height:46px;flex:none;display:grid;place-items:center;position:relative}
 .tstamp svg{width:46px;height:46px;overflow:visible;animation:pop .35s ease-out}
@@ -184,7 +190,7 @@ var DEFAULT_SETTINGS={nickname:"",pin:"0000",startBalance:0,goalName:"",goalAmou
     {id:"c9",label:"サナスタ タブレット",days:[0,1,2,3,4,5,6]}
   ],lessons:[]};
 
-var S={settings:null,checks:{},events:[],tests:[],money:[],wishes:[],goals:[],promises:[],rules:[],ready:false,dbOk:null,
+var S={settings:null,checks:{},events:[],tests:[],money:[],wishes:[],goals:[],promises:[],rules:[],lessonlogs:[],studySeg:"test",imp:null,lessonFilter:"all",ready:false,dbOk:null,
   mode:"kid",tab:"home",calMonth:null,selDate:null,testFilter:"all",pinOpen:false,pinVal:"",pinErr:""};
 var db=null;
 
@@ -211,8 +217,8 @@ function itemsFor(dateStr){var dow=parse(dateStr).getDay();return set().checkIte
 function doneFor(dateStr){return (S.checks[dateStr]&&S.checks[dateStr].done)||{}}
 function dayRate(dateStr){var it=itemsFor(dateStr),d=doneFor(dateStr),n=0;it.forEach(function(c){if(d[c.id])n++});return {n:n,total:it.length}}
 function goodTest(t){var p=testPct(t);return p!=null&&p>=hanaLine()}
-function coinDates(){var m={};Object.keys(S.checks).forEach(function(k){m[k]=1});S.tests.forEach(function(t){if(t.date)m[t.date]=1});return Object.keys(m)}
-function coinsOn(k){var d=(S.checks[k]&&S.checks[k].done)||{},t=0;Object.keys(d).forEach(function(x){if(d[x])t++});S.tests.forEach(function(x){if(x.date===k&&goodTest(x))t++});return t}
+function coinDates(){var m={};Object.keys(S.checks).forEach(function(k){m[k]=1});S.tests.forEach(function(t){if(t.date)m[t.date]=1});S.lessonlogs.forEach(function(t){if(t.date)m[t.date]=1});return Object.keys(m)}
+function coinsOn(k){var d=(S.checks[k]&&S.checks[k].done)||{},t=0;Object.keys(d).forEach(function(x){if(d[x])t++});S.tests.forEach(function(x){if(x.date===k&&goodTest(x))t++});S.lessonlogs.forEach(function(x){if(x.date===k&&x.hanamaru)t++});return t}
 function totalStars(){var t=0;coinDates().forEach(function(k){t+=coinsOn(k)});return t}
 function coinsByMonth(y){var a=[0,0,0,0,0,0,0,0,0,0,0,0];coinDates().forEach(function(k){if(k.slice(0,4)===String(y))a[+k.slice(5,7)-1]+=coinsOn(k)});return a}
 function streak(){var d=new Date(),c=0;var r=dayRate(ymd(d));if(!(r.total&&r.n===r.total))d.setDate(d.getDate()-1);
@@ -221,9 +227,6 @@ function balance(){var b=+set().startBalance||0;S.money.forEach(function(m){b+=(
 function itemsOn(dateStr,withSkipped){
   var out=[],dow=parse(dateStr).getDay();
   S.events.forEach(function(e){if(e.date===dateStr)out.push({kind:e.kind||"home",time:e.time||"",title:e.title,memo:e.memo,id:e.id,type:"event"})});
-  var skips=set().lessonSkips||{};
-  set().lessons.forEach(function(l){if(+l.day!==dow)return;var sk=!!skips[l.id+"_"+dateStr];if(sk&&!withSkipped)return;
-    out.push({kind:"lesson",time:l.time||"",title:l.name,memo:sk?"この日は お休み":[l.place,l.items?"持ち物："+l.items:""].filter(Boolean).join("／"),type:sk?"lessonSkip":"lesson",id:l.id})});
   S.tests.forEach(function(t){if(t.date===dateStr)out.push({kind:"test",time:"",title:t.subject+"・"+t.unit,memo:"",type:"test"})});
   S.goals.forEach(function(g){if(g.due===dateStr)out.push({kind:"goal",time:"",title:(g.type==="deadline"?"しめきり：":"もくひょう：")+g.title,memo:g.memo,type:"goal"})});
   S.money.forEach(function(m){if(m.date===dateStr)out.push({kind:"money",time:"",title:(m.note||"お小遣い")+" "+yen(m.amount),memo:"",type:"money"})});
@@ -293,10 +296,20 @@ function testRow(t,kid){var p=testPct(t),good=p!=null&&p>=hanaLine(),full=p!=nul
   var note=t.reviewed?(kid?"✅ ふくしゅう できた":"✅ 復習済"):(p==null||good?"":(kid?"ふくしゅうで もっと つよく なれるよ":"復習するとさらに定着します"));
   return '<div class="li test-row'+(good?" good":"")+'"><div class="tstamp">'+(good?hanamaru():'<span class="tpen">✏️</span>')+(full?'<span class="tfull">'+(kid?"まんてん":"満点")+'</span>':"")+'</div><div class="main"><div><span class="pill k-test">'+esc(t.subject)+'</span> '+esc(t.unit)+'</div><div class="meta">'+jdate(t.date)+(note?" ・"+note:"")+(!kid&&t.missed?" ・"+esc(t.missed):"")+(!kid&&!t.showChild?" ・子ども画面に非表示":"")+'</div></div><div class="tscore'+(good?" good":"")+'">'+scoreText(t,kid)+'</div>'+
     (kid?"":'<button class="btn small '+(t.reviewed?"":"ghost")+'" data-act="rev" data-id="'+t.id+'">'+(t.reviewed?"復習済":"未復習")+'</button><button class="btn small warn" data-act="deltest" data-id="'+t.id+'" aria-label="削除">✕</button>')+'</div>'}
+function studySeg(){var v=S.studySeg;return '<div class="seg" style="margin-top:12px">'+[["test",S.mode==="kid"?"テスト":"テスト"],["lesson",S.mode==="kid"?"ならいごと":"習い事"]].map(function(x){return '<button data-act="sseg" data-v="'+x[0]+'" aria-pressed="'+(v===x[0])+'">'+x[1]+'</button>'}).join("")+'</div>'}
+function lessonNames(){var m={};set().lessons.forEach(function(l){if(l.name)m[l.name]=1});S.lessonlogs.forEach(function(l){if(l.name)m[l.name]=1});return Object.keys(m)}
+function lessonRow(l,kid){
+  return '<div class="li test-row'+(l.hanamaru?" good":"")+'"><div class="tstamp">'+(l.hanamaru?hanamaru():'<span class="tpen">🎵</span>')+'</div><div class="main"><div><span class="pill k-lesson">'+esc(l.name)+'</span></div><div class="meta">'+jdate(l.date)+(l.memo?" ・"+esc(l.memo):"")+'</div></div>'+
+  (kid?(l.hanamaru?'<div class="tscore good" style="font-size:14px">はなまる</div>':""):'<button class="btn small '+(l.hanamaru?"":"ghost")+'" data-act="loghana" data-id="'+l.id+'">'+(l.hanamaru?"💮 花丸":"花丸なし")+'</button><button class="btn small warn" data-act="dellog" data-id="'+l.id+'" aria-label="削除">✕</button>')+'</div>'}
+function lessonLogs(){var f=S.lessonFilter,ls=S.lessonlogs.slice().sort(function(a,b){return (b.date||"").localeCompare(a.date||"")||(b.created||0)-(a.created||0)});return f==="all"?ls:ls.filter(function(l){return l.name===f})}
+function lessonFilterBar(){var names=lessonNames();if(names.length<2)return "";return '<div class="seg" style="margin-bottom:10px">'+["all"].concat(names).map(function(n){return '<button data-act="lf" data-v="'+esc(n)+'" aria-pressed="'+(S.lessonFilter===n)+'">'+(n==="all"?(S.mode==="kid"?"ぜんぶ":"すべて"):esc(n))+'</button>'}).join("")+'</div>'}
+function kidLessons(){var ls=lessonLogs(),ym=today().slice(0,7),mon=S.lessonlogs.filter(function(l){return (l.date||"").slice(0,7)===ym}),hm=mon.filter(function(l){return l.hanamaru}).length;
+  return '<div class="tiles" style="margin-top:12px"><div class="tile t-mint"><div class="k">こんげつ いった かいすう</div><div class="v">🎵 '+mon.length+'</div></div><div class="tile t-pink"><div class="k">こんげつの はなまる</div><div class="v">💮 '+hm+'</div></div></div><h2>ならいごとの きろく</h2>'+lessonFilterBar()+listOrEmpty(ls.map(function(l){return lessonRow(l,true)}),"まだ きろくは ないよ")}
 function kidStudy(){
+  if(S.studySeg==="lesson")return '<h1>べんきょう</h1><div class="sub">はなまるを もらうと コインが 1まい ふえるよ</div>'+studySeg()+kidLessons();
   var ts=S.tests.filter(function(t){return t.showChild}).sort(function(a,b){return b.date.localeCompare(a.date)});
   var rev=ts.filter(function(t){return t.reviewed}).length,hm=ts.filter(function(t){var p=testPct(t);return p!=null&&p>=hanaLine()}).length;
-  return '<h1>べんきょう</h1><div class="sub">'+hanaLine()+'てん いじょうで はなまる＆コイン1まい！ ふくしゅうも だいじだよ</div>'+
+  return '<h1>べんきょう</h1><div class="sub">'+hanaLine()+'てん いじょうで はなまる＆コイン1まい！ ふくしゅうも だいじだよ</div>'+studySeg()+
   '<div class="tiles" style="margin-top:12px"><div class="tile t-pink"><div class="k">はなまる テスト</div><div class="v">💮 '+hm+'</div></div><div class="tile t-mint"><div class="k">ふくしゅう できた</div><div class="v">'+rev+'</div></div></div><h2>テストの きろく（'+ts.length+'）</h2>'+
   listOrEmpty(ts.map(function(t){return testRow(t,true)}),"まだ きろくは ないよ")}
 function kidSchedule(){
@@ -352,6 +365,7 @@ function pDash(){
   '<div class="tiles" style="margin-top:12px"><div class="tile t-yellow"><div class="k">今日のチェック</div><div class="v">'+r.n+' / '+r.total+'</div></div><div class="tile t-mint"><div class="k">直近7日の達成率</div><div class="v">'+(wt?Math.round(wk/wt*100):0)+'%</div></div><div class="tile t-purple"><div class="k">お小遣い残高</div><div class="v">'+yen(balance())+'</div></div><div class="tile t-pink"><div class="k">要対応</div><div class="v" style="font-size:15px;line-height:1.5">未確認の支出 '+pend+'件<br>復習待ちテスト '+notRev+'件</div></div></div>'+
   '<h2>これから7日間の予定</h2>'+listOrEmpty(upcoming(7).filter(function(x){return x.type!=="money"}).map(function(x){return schedRow(x,true)}),"予定はまだありません。「カレンダー」で追加、習い事は「設定」で登録できます。")+
   '<h2>直近7日のチェック</h2>'+weekRows()}
+function photoCard(){return '<div class="card stack" style="margin-top:10px"><label class="btn photo-btn" for="photo-in">📷 プリントの写真から予定を読み取る</label><input id="photo-in" type="file" accept="image/*" hidden><div class="sub">撮影またはアルバムから選ぶと、日付・行事・持ち物を読み取って一覧にします。内容を確認してから追加できます。</div><div class="notice">お子さんの名前・学校名・クラスは写らないように撮影するか、隠してください。無料枠では、送った画像がGoogleのAI改善に使われることがあります。</div></div>'}
 function pCalendar(){
   var m=S.calMonth||new Date(),y=m.getFullYear(),mo=m.getMonth(),first=new Date(y,mo,1),start=new Date(first);start.setDate(1-first.getDay());
   var t=today(),sel=S.selDate||t,cells="";
@@ -363,15 +377,20 @@ function pCalendar(){
     (parent&&x.type==="event"?'<button class="btn small warn" data-act="delevent" data-id="'+x.id+'" aria-label="削除">✕</button>':"")+
     (parent&&x.type==="lesson"?'<button class="btn small warn" data-act="skiplesson" data-id="'+esc(x.id)+'" data-d="'+sel+'">この日は休み</button>':"")+
     (parent&&x.type==="lessonSkip"?'<button class="btn small ghost" data-act="unskiplesson" data-id="'+esc(x.id)+'" data-d="'+sel+'">元に戻す</button>':"")+"</div>"});
-  return '<h1>カレンダー</h1><div class="cal" style="margin-top:10px"><div class="calhead"><button class="btn small ghost" data-act="mon" data-v="-1" aria-label="前の月">◀</button><b>'+y+'年'+(mo+1)+'月</b><button class="btn small ghost" data-act="mon" data-v="1" aria-label="次の月">▶</button></div><div class="grid7">'+dows+cells+'</div><div class="legend">'+Object.keys(KINDS).map(function(k){return '<span><i class="dots"><i class="d-'+k+'"></i></i>'+KINDS[k]+"</span>"}).join("")+'</div></div>'+
+  return '<h1>カレンダー</h1>'+(parent?photoCard():"")+'<div class="cal" style="margin-top:10px"><div class="calhead"><button class="btn small ghost" data-act="mon" data-v="-1" aria-label="前の月">◀</button><b>'+y+'年'+(mo+1)+'月</b><button class="btn small ghost" data-act="mon" data-v="1" aria-label="次の月">▶</button></div><div class="grid7">'+dows+cells+'</div><div class="legend">'+Object.keys(KINDS).map(function(k){return '<span><i class="dots"><i class="d-'+k+'"></i></i>'+KINDS[k]+"</span>"}).join("")+'</div></div>'+
   '<h2>'+jdate(sel)+'</h2>'+listOrEmpty(rows,"この日の予定はありません")+
   (parent?'<h2>予定を追加</h2><form class="f card" id="addevent"><div class="two"><label>日付<input id="ev-date" type="date" required value="'+sel+'"></label><label>時間<input id="ev-time" type="time"></label></div><label>内容<input id="ev-title" required maxlength="40" placeholder="授業参観"></label><div class="two"><label>種類<select id="ev-kind"><option value="school">学校</option><option value="home">家庭</option><option value="lesson">習い事（臨時）</option><option value="test">テスト</option></select></label><label>メモ<input id="ev-memo" maxlength="60" placeholder="持ち物など"></label></div><button class="btn" type="submit">追加する</button></form>':"")+
   '<h2>目標・期日のあるもの</h2>'+listOrEmpty(sortedGoals().map(function(g){return goalRow(g,parent)}),"まだありません")+
   (parent?'<form class="f card" id="addgoal" style="margin-top:10px"><div class="two"><label>種類<select id="g-type"><option value="goal">目標</option><option value="deadline">期日のあるもの</option></select></label><label>期日<input id="g-due" type="date"></label></div><label>内容<input id="g-title" required maxlength="40" placeholder="九九を ぜんぶ言える"></label><label>メモ<input id="g-memo" maxlength="60" placeholder="提出物・持ち物など"></label><button class="btn" type="submit">追加する</button><div class="sub">期日を入れるとカレンダーにオレンジの印が付き、子どもの「よてい」にも表示されます</div></form>':"")}
+function pLessons(){var names=lessonNames(),ls=lessonLogs();
+  return '<h1>学習の記録</h1><div class="sub">習い事の日ごとの記録。花丸を付けるとコインが1枚増えます</div>'+studySeg()+
+  '<h2>記録する</h2><form class="f card" id="addlog"><div class="two"><label>日付<input id="lg-date" type="date" required value="'+today()+'"></label><label>習い事名<input id="lg-name" list="lesson-names" required maxlength="20" placeholder="スイミング" value="'+esc(names[0]||"")+'"></label></div><datalist id="lesson-names">'+names.map(function(n){return '<option value="'+esc(n)+'"></option>'}).join("")+'</datalist><label>備考<textarea id="lg-memo" rows="2" maxlength="120" placeholder="25m泳げた・先生にほめられた"></textarea></label><label class="chk"><input type="checkbox" id="lg-hana"> 花丸をつける</label><button class="btn" type="submit">記録する</button></form>'+
+  '<h2>一覧</h2>'+lessonFilterBar()+listOrEmpty(ls.map(function(l){return lessonRow(l,false)}),"習い事の記録はまだありません")}
 function pTests(){
+  if(S.studySeg==="lesson")return pLessons();
   var f=S.testFilter,ts=S.tests.slice().sort(function(a,b){return b.date.localeCompare(a.date)});if(f!=="all")ts=ts.filter(function(t){return t.subject===f});
   var subs=["all"].concat(SUBJECTS);
-  return '<h1>テスト記録</h1><div class="sub">点数の良し悪しより、理解できた単元と復習の状況を残します</div>'+
+  return '<h1>学習の記録</h1><div class="sub">点数の良し悪しより、理解できた単元と復習の状況を残します</div>'+studySeg()+
   '<h2>記録する</h2><form class="f card" id="addtest"><div class="two"><label>日付<input id="t-date" type="date" required value="'+today()+'"></label><label>教科<select id="t-sub">'+SUBJECTS.map(function(s){return "<option>"+s+"</option>"}).join("")+'</select></label></div><label>単元<input id="t-unit" required maxlength="30" placeholder="かけ算（2のだん）"></label><div class="two"><label>得点<input id="t-score" type="number" inputmode="numeric" min="0" placeholder="90"></label><label>満点<input id="t-max" type="number" inputmode="numeric" min="1" value="100"></label></div><label>間違えた問題・メモ<textarea id="t-miss" rows="2" maxlength="200" placeholder="くり上がりのある問題"></textarea></label><label class="chk"><input type="checkbox" id="t-rev"> 復習済み</label><label class="chk"><input type="checkbox" id="t-show" checked> 子ども画面に表示する</label><button class="btn" type="submit">記録する</button><div class="sub">テスト写真の保存は第2段階で追加予定です</div></form>'+
   '<h2>一覧</h2><div class="seg" style="margin-bottom:10px">'+subs.map(function(s){return '<button data-act="tf" data-v="'+s+'" aria-pressed="'+(f===s)+'">'+(s==="all"?"すべて":s)+"</button>"}).join("")+'</div>'+
   listOrEmpty(ts.map(function(t){return testRow(t,false)}),"テスト記録はまだありません")}
@@ -389,14 +408,46 @@ function pSettings(){
   '<h2>基本</h2><form class="f card" id="basic"><div class="two"><label>ニックネーム<input id="s-nick" maxlength="12" value="'+esc(s.nickname)+'" placeholder="まるくん"></label><label>保護者PIN（4桁）<input id="s-pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" value="'+esc(s.pin)+'"></label></div><div class="two"><label>お小遣いの初期残高<input id="s-start" type="number" inputmode="numeric" min="0" value="'+(+s.startBalance||0)+'"></label><label>貯金目標の金額<input id="s-goal" type="number" inputmode="numeric" min="0" value="'+(+s.goalAmount||0)+'"></label></div><label>貯金目標の名前<input id="s-goalname" maxlength="20" value="'+esc(s.goalName)+'" placeholder="ずかん"></label><label>テストのはなまる基準（点・100点満点換算）<input id="s-line" type="number" inputmode="numeric" min="1" max="100" value="'+hanaLine()+'"></label><button class="btn" type="submit">保存する</button></form>'+
   '<h2>毎日のチェック項目</h2>'+listOrEmpty(s.checkItems.map(function(c){return '<div class="li"><div class="main"><div>'+esc(c.label)+'</div><div class="meta">'+(c.days.length===7?"毎日":c.days.map(function(x){return DOW[x]}).join("・"))+'</div></div><button class="btn small warn" data-act="delcheck" data-id="'+esc(c.id)+'" aria-label="削除">✕</button></div>'}),"項目がありません")+
   '<form class="f card" id="addcheck" style="margin-top:10px"><label>項目名（ひらがな推奨）<input id="c-label" required maxlength="16" placeholder="なわとび"></label><div class="seg" id="c-days">'+DOW.map(function(w,i){return '<button type="button" data-act="cday" data-v="'+i+'" aria-pressed="true">'+w+"</button>"}).join("")+'</div><button class="btn" type="submit">追加する</button></form>'+
-  '<h2>習い事（毎週の予定）</h2>'+listOrEmpty(s.lessons.map(function(l){return '<div class="li"><span class="pill k-lesson">'+DOW[l.day]+'</span><div class="main"><div>'+esc(l.name)+' <span class="meta">'+esc(l.time)+'</span></div><div class="meta">'+[l.place,l.fee?"月謝 "+yen(+l.fee):"",l.items?"持ち物："+l.items:""].filter(Boolean).map(esc).join(" ・")+'</div></div><button class="btn small warn" data-act="dellesson" data-id="'+esc(l.id)+'" aria-label="削除">✕</button></div>'}),"習い事はまだありません")+
-  '<form class="f card" id="addlesson" style="margin-top:10px"><div class="two"><label>名称<input id="l-name" required maxlength="20" placeholder="スイミング"></label><label>場所<input id="l-place" maxlength="30"></label></div><div class="two"><label>曜日<select id="l-day">'+DOW.map(function(w,i){return '<option value="'+i+'">'+w+"曜日</option>"}).join("")+'</select></label><label>時間<input id="l-time" type="time"></label></div><div class="two"><label>月謝<input id="l-fee" type="number" inputmode="numeric" min="0"></label><label>持ち物<input id="l-items" maxlength="40" placeholder="水着・タオル"></label></div><button class="btn" type="submit">追加する</button></form>'+
+  '<h2>習い事の一覧</h2><div class="sub" style="margin-bottom:8px">ここに登録した名前が、習い事の記録で選べるようになります。日程はカレンダーにプリントの写真から追加してください</div>'+listOrEmpty(s.lessons.map(function(l){return '<div class="li"><span class="pill k-lesson">習い事</span><div class="main"><div>'+esc(l.name)+'</div><div class="meta">'+[l.place,l.fee?"月謝 "+yen(+l.fee):"",l.items?"持ち物："+l.items:""].filter(Boolean).map(esc).join(" ・")+'</div></div><button class="btn small warn" data-act="dellesson" data-id="'+esc(l.id)+'" aria-label="削除">✕</button></div>'}),"習い事はまだありません")+
+  '<form class="f card" id="addlesson" style="margin-top:10px"><div class="two"><label>名称<input id="l-name" required maxlength="20" placeholder="スイミング"></label><label>場所<input id="l-place" maxlength="30"></label></div><div class="two"><label>月謝<input id="l-fee" type="number" inputmode="numeric" min="0"></label><label>持ち物<input id="l-items" maxlength="40" placeholder="水着・タオル"></label></div><button class="btn" type="submit">追加する</button></form>'+
   '<div class="notice" style="margin-top:16px">PINは子どもの誤操作を防ぐためのものです。本格的な鍵ではないため、大切な情報は入力しすぎないようにしてください。</div>'+
   '<h2>この端末のログイン</h2><div class="card row"><div class="grow sub">'+esc((firebase.auth().currentUser||{}).email||"")+'</div><button class="btn small warn" data-act="logout">ログアウト</button></div>'}
 
+/* ---------- photo import (Firebase AI Logic) ---------- */
+var FB_V="https://www.gstatic.com/firebasejs/12.19.0/";
+var AI_MODELS=["gemini-3.5-flash","gemini-3.5-flash-lite","gemini-3.1-flash-lite"];
+var aiModPromise=null;
+function loadAI(){if(!aiModPromise){aiModPromise=Promise.all([import(FB_V+"firebase-app.js"),import(FB_V+"firebase-ai.js")]).then(function(m){var appMod=m[0],aiMod=m[1],app;try{app=appMod.getApp("ai")}catch(e){app=appMod.initializeApp(FIREBASE_CONFIG,"ai")}return {aiMod:aiMod,ai:aiMod.getAI(app,{backend:new aiMod.GoogleAIBackend()})}});aiModPromise.catch(function(){aiModPromise=null})}return aiModPromise}
+function toJpegB64(file){return new Promise(function(res,rej){var url=URL.createObjectURL(file),img=new Image();img.onload=function(){var mx=1600,w=img.naturalWidth,h=img.naturalHeight,sc=Math.min(1,mx/Math.max(w,h)),c=document.createElement("canvas");c.width=Math.round(w*sc);c.height=Math.round(h*sc);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c.toDataURL("image/jpeg",0.85).split(",")[1])};img.onerror=function(){URL.revokeObjectURL(url);rej(new Error("画像を読み込めませんでした"))};img.src=url})}
+function impPrompt(){return "これは日本の小学校・学童・習い事などのお知らせプリントの写真です。予定・行事・締め切り・提出日・持ち物が必要な日をすべて抜き出してください。\n今日は"+today()+"です。年が書かれていない日付は、日本の学年（4月始まり）を考慮し、今日から見て自然な年にしてください。\n人名・学校名・クラス名などの個人情報は出力に含めないでください。\n次の形式のJSONだけを出力してください。\n{\"events\":[{\"date\":\"YYYY-MM-DD\",\"time\":\"HH:MM または空文字\",\"title\":\"短い予定名（20文字以内）\",\"kind\":\"school / lesson / home / test のどれか\",\"memo\":\"持ち物や注意点（40文字以内、なければ空文字）\"}]}\n予定が見つからない場合は events を空の配列にしてください。"}
+function parseEvents(t){t=String(t||"").replace(/```json|```/g,"").trim();var i=t.indexOf("{"),j=t.lastIndexOf("}");if(i<0||j<i)throw new Error("parse");var o=JSON.parse(t.slice(i,j+1)),arr=Array.isArray(o)?o:(o.events||[]);
+  return arr.filter(function(e){return e&&/^\d{4}-\d{2}-\d{2}$/.test(e.date||"")&&e.title}).map(function(e){return {on:true,date:e.date,time:/^\d{1,2}:\d{2}$/.test(e.time||"")?(e.time.length===4?"0"+e.time:e.time):"",title:String(e.title).slice(0,40),kind:KINDS[e.kind]&&e.kind!=="money"&&e.kind!=="goal"?e.kind:"school",memo:String(e.memo||"").slice(0,60)}})}
+function aiErrMsg(e){var m=String((e&&(e.message||e.code))||e||"");
+  if(/import|Failed to fetch dynamically|module/i.test(m))return "読み取り機能を読み込めませんでした。通信状態を確認して、もう一度お試しください。";
+  if(/not been used|disabled|API_NOT|enable|403|PERMISSION|firebasevertexai|firebaseml/i.test(m))return "Firebaseで「AI Logic」がまだ有効になっていない可能性があります。Firebaseの管理画面 →「AI サービス」→「AI Logic」→「始める」で「Gemini Developer API」を有効にしてください。";
+  if(/429|quota|RESOURCE_EXHAUSTED|rate/i.test(m))return "無料で使える回数の上限に達しました。しばらく時間をおいてからお試しください。";
+  return "読み取れませんでした（"+m.slice(0,80)+"）。明るい場所で、プリント全体がまっすぐ写るように撮り直してお試しください。"}
+function runImport(file){S.imp={status:"loading"};render();
+  toJpegB64(file).then(function(b64){return loadAI().then(function(x){var models=(set().aiModel?[set().aiModel]:[]).concat(AI_MODELS),k=0,lastErr;
+    function tryNext(){if(k>=models.length)return Promise.reject(lastErr);var name=models[k++];var model=x.aiMod.getGenerativeModel(x.ai,{model:name,generationConfig:{responseMimeType:"application/json",temperature:0.1}});
+      return model.generateContent([impPrompt(),{inlineData:{data:b64,mimeType:"image/jpeg"}}]).then(function(r){return r.response.text()},function(e){lastErr=e;var m=String(e&&e.message||"");if(/404|not found|not supported|unsupported|NOT_FOUND|model/i.test(m)&&!/quota|429/.test(m))return tryNext();throw e})}
+    return tryNext()})}).then(function(text){var items=parseEvents(text);S.imp={status:"review",items:items};render()},function(e){console.error(e);S.imp={status:"error",err:e&&e.message==="parse"?"読み取り結果を整理できませんでした。もう一度お試しください。":aiErrMsg(e)};render()})}
+function impSheet(){var im=S.imp,body;
+  if(im.status==="loading")body='<div style="font-weight:900;font-size:17px">📷 プリントを読み取っています…</div><div class="sub">10〜30秒ほどかかります。このままお待ちください。</div><div class="spin" aria-hidden="true"></div>';
+  else if(im.status==="error")body='<div style="font-weight:900;font-size:17px">読み取れませんでした</div><div class="sub" style="color:var(--fg)">'+esc(im.err)+'</div><button type="button" class="btn ghost" data-act="impclose">閉じる</button>';
+  else{var n=im.items.filter(function(x){return x.on}).length;
+    body='<div style="font-weight:900;font-size:17px">読み取った予定（'+im.items.length+'件）</div><div class="notice">AIの読み取りは間違えることがあります。日付・内容を確認し、不要なものはチェックを外してください。</div>'+
+    (im.items.length?im.items.map(function(x,i){return '<div class="imp-item'+(x.on?"":" off")+'"><label class="chk"><input type="checkbox" id="imp-on-'+i+'"'+(x.on?" checked":"")+'> 追加する</label><div class="two"><label>日付<input id="imp-date-'+i+'" type="date" value="'+esc(x.date)+'"></label><label>時間<input id="imp-time-'+i+'" type="time" value="'+esc(x.time)+'"></label></div><label>内容<input id="imp-title-'+i+'" maxlength="40" value="'+esc(x.title)+'"></label><div class="two"><label>種類<select id="imp-kind-'+i+'">'+["school","lesson","home","test"].map(function(k){return '<option value="'+k+'"'+(x.kind===k?" selected":"")+'>'+KINDS[k]+'</option>'}).join("")+'</select></label><label>メモ<input id="imp-memo-'+i+'" maxlength="60" value="'+esc(x.memo)+'"></label></div></div>'}).join(""):'<div class="empty">予定が見つかりませんでした。プリント全体が写るように撮り直してください。</div>')+
+    '<div class="row"><button type="button" class="btn ghost grow" data-act="impclose">やめる</button>'+(im.items.length?'<button class="btn grow" type="submit"'+(n?"":" disabled")+'>'+n+'件を追加</button>':"")+'</div>'}
+  return '<div class="sheet-bg"><form class="sheet wide f" id="impform">'+body+'</form></div>'}
+document.addEventListener("change",function(e){var t=e.target;if(!t||!t.id)return;
+  if(t.id==="photo-in"){var f=t.files&&t.files[0];t.value="";if(f)runImport(f);return}
+  var m=t.id.match(/^imp-(on|date|time|title|kind|memo)-(\d+)$/);if(m&&S.imp&&S.imp.items){var it=S.imp.items[+m[2]];if(!it)return;it[m[1]]=m[1]==="on"?t.checked:t.value;if(m[1]==="on")render()}});
+document.addEventListener("input",function(e){var t=e.target;if(!t||!t.id)return;var m=t.id.match(/^imp-(date|time|title|memo)-(\d+)$/);if(m&&S.imp&&S.imp.items){var it=S.imp.items[+m[2]];if(it)it[m[1]]=t.value}});
+
 /* ---------- shell ---------- */
 var KID_TABS=[["home","🏠","ホーム"],["sched","📅","よてい"],["study","✏️","べんきょう"],["money","👛","おかね"],["lists","🎁","リスト"],["promise","🤝","やくそく"],["stars","COIN","コイン"]];
-var PAR_TABS=[["dash","📊","ダッシュ"],["cal","📅","カレンダー"],["tests","📝","テスト"],["pmoney","👛","お小遣い"],["promise","🤝","約束"],["settings","⚙️","設定"]];
+var PAR_TABS=[["dash","📊","ダッシュ"],["cal","📅","カレンダー"],["tests","📝","学習"],["pmoney","👛","お小遣い"],["promise","🤝","約束"],["settings","⚙️","設定"]];
 function render(){
   var app=document.getElementById("app"),kid=S.mode==="kid",tabs=kid?KID_TABS:PAR_TABS;
   if(S.auth!=="in"){
@@ -412,6 +463,7 @@ function render(){
   app.innerHTML='<div class="wrap"><header class="top"><div class="brand"><i><b style="background:var(--blue)"></b><b style="background:var(--yellow)"></b><b style="background:var(--pink)"></b><b style="background:var(--mint)"></b><b style="background:var(--purple)"></b></i>まなびの宝箱</div><button class="modebtn" data-act="mode">'+(kid?"🔒 保護者モード":"👦 子どもモードへ")+'</button></header>'+warn+'<main id="view">'+body+'</main></div>'+
   '<nav class="tabs" aria-label="メニュー"><div class="in">'+tabs.map(function(t){return '<button data-act="tab" data-v="'+t[0]+'" aria-current="'+(S.tab===t[0])+'"><span class="ic">'+(t[1]==="COIN"?coin(22):t[1])+"</span>"+t[2]+"</button>"}).join("")+"</div></nav>"+
   (S.pinOpen?'<div class="sheet-bg"><form class="sheet f" id="pinform"><div style="font-weight:900;font-size:17px">保護者モード</div><div class="sub">PINを入力してください</div><input id="pin-in" class="pinbox" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="PIN"><div class="sub" style="color:var(--pink)">'+esc(S.pinErr)+'</div><div class="row"><button type="button" class="btn ghost grow" data-act="pincancel">やめる</button><button class="btn grow" type="submit">ひらく</button></div></form></div>':"");
+  if(S.imp)app.insertAdjacentHTML("beforeend",impSheet());
   if(S.pinOpen){var pi=document.getElementById("pin-in");if(pi)pi.focus()}
 }
 function go(tab){S.tab=tab;render();window.scrollTo(0,0)}
@@ -420,6 +472,11 @@ document.addEventListener("click",function(e){
   var b=e.target.closest("[data-act]");if(!b)return;var a=b.dataset.act,id=b.dataset.id,v=b.dataset.v;
   if(a==="tab")return go(v);
   if(a==="skiplesson"||a==="unskiplesson"){var skm=Object.assign({},set().lessonSkips||{}),key=id+"_"+b.dataset.d;if(a==="skiplesson")skm[key]=true;else delete skm[key];saveSettings({lessonSkips:skm});toast(a==="skiplesson"?"この日をお休みにしました":"元に戻しました");return}
+  if(a==="sseg"){S.studySeg=v;S.lessonFilter="all";render();return}
+  if(a==="lf"){S.lessonFilter=v;render();return}
+  if(a==="impclose"){S.imp=null;render();return}
+  if(a==="loghana"){var lg=S.lessonlogs.find(function(x){return x.id===id});if(!lg)return;var hv=!lg.hanamaru;lg.hanamaru=hv;render();if(hv)toast("💮 花丸！ コインが1枚ふえました");write("lessonlogs/"+id,function(){return db.doc("lessonlogs/"+id).update({hanamaru:hv})});return}
+  if(a==="dellog"){S.lessonlogs=S.lessonlogs.filter(function(x){return x.id!==id});render();write("lessonlogs/"+id,function(){return db.doc("lessonlogs/"+id).delete()});return}
   if(a==="logout"){firebase.auth().signOut();return}
   if(a==="mode"){if(S.mode==="kid"){S.pinOpen=true;S.pinErr="";render()}else{S.mode="kid";ls("mgb-mode","kid");go("home")}return}
   if(a==="pincancel"){S.pinOpen=false;render();return}
@@ -458,13 +515,15 @@ document.addEventListener("submit",function(e){
   if(f==="addrule"){addDoc("rules",{task:val("r-task"),amount:Math.abs(+val("r-amt"))||0,memo:val("r-memo")});toast("追加しました");return}
   if(f==="addwant"){addDoc("wishes",{type:"want",name:val("w-name"),price:+val("w-price")||0,memo:val("w-memo"),got:false});toast("ついかしたよ");return}
   if(f==="addlike"){addDoc("wishes",{type:"like",name:val("lk-name"),cat:val("lk-cat"),memo:val("lk-memo")});toast("ついかしたよ");return}
+  if(f==="impform"){if(!S.imp||!S.imp.items)return;var sel2=S.imp.items.filter(function(x){return x.on&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&x.title});S.imp=null;sel2.forEach(function(x){addDoc("events",{date:x.date,time:x.time||"",title:x.title,kind:x.kind,memo:x.memo||"",source:"photo"})});if(sel2[0]){S.selDate=sel2[0].date;var d0=parse(sel2[0].date);S.calMonth=new Date(d0.getFullYear(),d0.getMonth(),1)}render();toast(sel2.length+"件の予定を追加しました");return}
+  if(f==="addlog"){var nm=val("lg-name");if(!nm)return;var hn=document.getElementById("lg-hana").checked;addDoc("lessonlogs",{date:val("lg-date"),name:nm,memo:val("lg-memo"),hanamaru:hn});toast(hn?"💮 花丸！ 記録しました":"記録しました");return}
   if(f==="addevent"){addDoc("events",{date:val("ev-date"),time:val("ev-time"),title:val("ev-title"),kind:val("ev-kind"),memo:val("ev-memo")});S.selDate=val("ev-date");toast("追加しました");return}
   if(f==="addtest"){addDoc("tests",{date:val("t-date"),subject:val("t-sub"),unit:val("t-unit"),score:val("t-score")===""?"":+val("t-score"),max:+val("t-max")||100,missed:val("t-miss"),reviewed:document.getElementById("t-rev").checked,showChild:document.getElementById("t-show").checked});var tp=val("t-score")===""?null:(+val("t-score"))/(+val("t-max")||100)*100;toast(tp!=null&&tp>=hanaLine()?"💮 はなまる！ コインが1枚ふえました":"記録しました");return}
   if(f==="addmoney"){var a2=Math.abs(+val("m-amt"));if(!a2)return;var inn=val("m-kind")==="in";addDoc("money",{date:val("m-date"),amount:inn?a2:-a2,note:val("m-note")||(inn?"お小遣い":"支出"),kind:inn?"in":"out",by:"parent",confirmed:true});toast("記録しました");return}
   if(f==="adjust"){var diff=(+val("a-cash"))-balance();if(diff===0){toast("差額はありません");return}addDoc("money",{date:today(),amount:diff,note:"残高調整",kind:"adjust",by:"parent",confirmed:true});toast("調整しました");return}
   if(f==="basic"){var pin=val("s-pin");if(!/^\d{4}$/.test(pin)){toast("PINは数字4桁にしてください");return}saveSettings({nickname:val("s-nick"),pin:pin,startBalance:+val("s-start")||0,goalAmount:+val("s-goal")||0,goalName:val("s-goalname"),hanamaruLine:Math.min(100,Math.max(1,+val("s-line")||80))});toast("保存しました");return}
   if(f==="addcheck"){var days=[].slice.call(document.querySelectorAll('#c-days [aria-pressed="true"]')).map(function(x){return +x.dataset.v});if(!days.length){toast("曜日を1つ以上選んでください");return}saveSettings({checkItems:set().checkItems.concat([{id:uid(),label:val("c-label"),days:days}])});toast("追加しました");return}
-  if(f==="addlesson"){saveSettings({lessons:set().lessons.concat([{id:uid(),name:val("l-name"),place:val("l-place"),day:+val("l-day"),time:val("l-time"),fee:+val("l-fee")||0,items:val("l-items")}])});toast("追加しました");return}
+  if(f==="addlesson"){saveSettings({lessons:set().lessons.concat([{id:uid(),name:val("l-name"),place:val("l-place"),fee:+val("l-fee")||0,items:val("l-items")}])});toast("追加しました");return}
 });
 
 /* ---------- data ---------- */
@@ -489,11 +548,11 @@ function start(){
     if(!user){db=null;S.auth="out";S.ready=false;render();return}
     S.auth="in";S.ready=false;db=fs;S.dbOk=true;render();
     clearTimeout(fallback);fallback=setTimeout(function(){if(!S.ready){S.ready=true;render()}},5000);
-    var got=0;function mark(){got++;if(got>=9&&!S.ready){S.ready=true;clearTimeout(fallback)}scheduleRender()}
+    var got=0;function mark(){got++;if(got>=10&&!S.ready){S.ready=true;clearTimeout(fallback)}scheduleRender()}
     function onErr(e){console.error(e);if(e&&e.code==="permission-denied"){S.dbOk=false;S.ready=true;render()}}
     unsubs.push(db.doc("app/settings").onSnapshot(function(s){S.settings=s.exists?Object.assign({},DEFAULT_SETTINGS,s.data()):null;mark()},onErr));
     unsubs.push(db.collection("checks").orderBy("updated","desc").limit(1000).onSnapshot(function(q){var m={};q.docs.forEach(function(x){m[x.id]=x.data()});S.checks=m;mark()},onErr));
-    ["events","tests","money","wishes","goals","promises","rules"].forEach(function(c){unsubs.push(db.collection(c).limit(1000).onSnapshot(function(q){S[c]=q.docs.map(function(x){return Object.assign({id:x.id},x.data())});mark()},onErr))});
+    ["events","tests","money","wishes","goals","promises","rules","lessonlogs"].forEach(function(c){unsubs.push(db.collection(c).limit(1000).onSnapshot(function(q){S[c]=q.docs.map(function(x){return Object.assign({id:x.id},x.data())});mark()},onErr))});
   });
 }
 start();
