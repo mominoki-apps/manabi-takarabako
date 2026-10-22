@@ -365,7 +365,7 @@ function pDash(){
   '<div class="tiles" style="margin-top:12px"><div class="tile t-yellow"><div class="k">今日のチェック</div><div class="v">'+r.n+' / '+r.total+'</div></div><div class="tile t-mint"><div class="k">直近7日の達成率</div><div class="v">'+(wt?Math.round(wk/wt*100):0)+'%</div></div><div class="tile t-purple"><div class="k">お小遣い残高</div><div class="v">'+yen(balance())+'</div></div><div class="tile t-pink"><div class="k">要対応</div><div class="v" style="font-size:15px;line-height:1.5">未確認の支出 '+pend+'件<br>復習待ちテスト '+notRev+'件</div></div></div>'+
   '<h2>これから7日間の予定</h2>'+listOrEmpty(upcoming(7).filter(function(x){return x.type!=="money"}).map(function(x){return schedRow(x,true)}),"予定はまだありません。「カレンダー」で追加、習い事は「設定」で登録できます。")+
   '<h2>直近7日のチェック</h2>'+weekRows()}
-function photoCard(){return '<div class="card stack" style="margin-top:10px"><label class="btn photo-btn" for="photo-in">📷 プリントの写真から予定を読み取る</label><input id="photo-in" type="file" accept="image/*" hidden><div class="sub">撮影またはアルバムから選ぶと、日付・行事・持ち物を読み取って一覧にします。内容を確認してから追加できます。</div><div class="notice">お子さんの名前・学校名・クラスは写らないように撮影するか、隠してください。無料枠では、送った画像がGoogleのAI改善に使われることがあります。</div></div>'}
+function photoCard(){return '<div class="card stack" style="margin-top:10px"><label class="btn photo-btn" for="photo-in">📷 プリントの写真から予定を読み取る</label><input id="photo-in" type="file" accept="image/*" hidden><label class="btn ghost photo-btn" for="json-in">📄 予定ファイルを取り込む</label><input id="json-in" type="file" accept=".json,application/json,text/plain" hidden><div class="sub">撮影またはアルバムから選ぶと、日付・行事・持ち物を読み取って一覧にします。Claudeが作った予定ファイルは「予定ファイルを取り込む」から追加できます。内容を確認してから追加できます。</div><div class="notice">お子さんの名前・学校名・クラスは写らないように撮影するか、隠してください。無料枠では、送った画像がGoogleのAI改善に使われることがあります。</div></div>'}
 function pCalendar(){
   var m=S.calMonth||new Date(),y=m.getFullYear(),mo=m.getMonth(),first=new Date(y,mo,1),start=new Date(first);start.setDate(1-first.getDay());
   var t=today(),sel=S.selDate||t,cells="";
@@ -441,6 +441,7 @@ function impSheet(){var im=S.imp,body;
     '<div class="row"><button type="button" class="btn ghost grow" data-act="impclose">やめる</button>'+(im.items.length?'<button class="btn grow" type="submit"'+(n?"":" disabled")+'>'+n+'件を追加</button>':"")+'</div>'}
   return '<div class="sheet-bg"><form class="sheet wide f" id="impform">'+body+'</form></div>'}
 document.addEventListener("change",function(e){var t=e.target;if(!t||!t.id)return;
+  if(t.id==="json-in"){var jf=t.files&&t.files[0];t.value="";if(!jf)return;var rd=new FileReader();rd.onload=function(){try{S.imp={status:"review",items:parseEvents(rd.result)}}catch(err){S.imp={status:"error",err:"このファイルは読み込めませんでした。Claudeが作った予定ファイル（.json）を選んでください。"}}render()};rd.readAsText(jf);return}
   if(t.id==="photo-in"){var f=t.files&&t.files[0];t.value="";if(f)runImport(f);return}
   var m=t.id.match(/^imp-(on|date|time|title|kind|memo)-(\d+)$/);if(m&&S.imp&&S.imp.items){var it=S.imp.items[+m[2]];if(!it)return;it[m[1]]=m[1]==="on"?t.checked:t.value;if(m[1]==="on")render()}});
 document.addEventListener("input",function(e){var t=e.target;if(!t||!t.id)return;var m=t.id.match(/^imp-(date|time|title|memo)-(\d+)$/);if(m&&S.imp&&S.imp.items){var it=S.imp.items[+m[2]];if(it)it[m[1]]=t.value}});
