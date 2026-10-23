@@ -384,6 +384,10 @@ function pDash(){
   '<h2>これから7日間の予定</h2>'+listOrEmpty(upcoming(7).filter(function(x){return x.type!=="money"}).map(function(x){return schedRow(x,true)}),"予定はまだありません。「カレンダー」で追加、習い事は「設定」で登録できます。")+
   '<h2>直近7日のチェック</h2>'+weekRows()}
 function photoCard(){return '<div class="card stack" style="margin-top:10px"><label class="btn photo-btn" for="photo-in">📷 プリントの写真から予定を読み取る</label><input id="photo-in" type="file" accept="image/*" hidden><label class="chk"><input type="checkbox" id="auto-add"'+(set().autoAdd!==false?" checked":"")+'> 撮ったらすぐカレンダーに追加する（確認画面なし）</label><button type="button" class="btn ghost photo-btn" data-act="pasteopen">📋 文字を貼り付けて取り込む</button><label class="btn ghost photo-btn" for="json-in" style="font-size:13px;padding:10px">📄 予定ファイルを取り込む</label><input id="json-in" type="file" accept=".json,application/json,text/plain" hidden><div class="sub">撮影またはアルバムから選ぶと、日付・行事・持ち物を読み取ってカレンダーに追加します。チェックを外すと、追加前に内容を確認できます。</div><div class="notice">お子さんの名前・学校名・クラスは写らないように撮影するか、隠してください。無料枠では、送った画像がGoogleのAI改善に使われることがあります。</div></div>'}
+function importedEvents(){return S.events.filter(function(e){return e.source==="photo"})}
+function bulkDelCard(){var n=importedEvents().length;if(!n)return "";
+  return '<div class="card stack" style="margin-top:10px"><div style="font-weight:900">🗑 取り込んだ予定をまとめて削除</div><div class="sub">写真・貼り付け・ファイルで取り込んだ予定が '+n+'件 あります。手で入力した予定や習い事は消えません。</div>'+
+  (S.bulkDelArm?'<div class="notice" style="color:var(--pink)">本当に '+n+'件 を削除しますか？ 元に戻せません。</div><div class="row"><button class="btn ghost grow" data-act="bulkdelno">やめる</button><button class="btn warn grow" data-act="bulkdelgo">'+n+'件を削除する</button></div>':'<button class="btn warn" data-act="bulkdelarm">取り込んだ予定を全部削除</button>')+'</div>'}
 function pCalendar(){
   var m=S.calMonth||new Date(),y=m.getFullYear(),mo=m.getMonth(),first=new Date(y,mo,1),start=new Date(first);start.setDate(1-first.getDay());
   var t=today(),sel=S.selDate||t,cells="";
@@ -395,7 +399,7 @@ function pCalendar(){
     (parent&&x.type==="event"?'<button class="btn small warn" data-act="delevent" data-id="'+x.id+'" aria-label="削除">✕</button>':"")+
     (parent&&x.type==="lesson"?'<button class="btn small warn" data-act="skiplesson" data-id="'+esc(x.id)+'" data-d="'+sel+'">この日は休み</button>':"")+
     (parent&&x.type==="lessonSkip"?'<button class="btn small ghost" data-act="unskiplesson" data-id="'+esc(x.id)+'" data-d="'+sel+'">元に戻す</button>':"")+"</div>"});
-  return '<h1>カレンダー</h1>'+(parent?photoCard():"")+'<div class="cal" style="margin-top:10px"><div class="calhead"><button class="btn small ghost" data-act="mon" data-v="-1" aria-label="前の月">◀</button><b>'+y+'年'+(mo+1)+'月</b><button class="btn small ghost" data-act="mon" data-v="1" aria-label="次の月">▶</button></div><div class="grid7">'+dows+cells+'</div><div class="legend">'+Object.keys(KINDS).map(function(k){return '<span><i class="dots"><i class="d-'+k+'"></i></i>'+KINDS[k]+"</span>"}).join("")+'</div></div>'+
+  return '<h1>カレンダー</h1>'+(parent?photoCard()+bulkDelCard():"")+'<div class="cal" style="margin-top:10px"><div class="calhead"><button class="btn small ghost" data-act="mon" data-v="-1" aria-label="前の月">◀</button><b>'+y+'年'+(mo+1)+'月</b><button class="btn small ghost" data-act="mon" data-v="1" aria-label="次の月">▶</button></div><div class="grid7">'+dows+cells+'</div><div class="legend">'+Object.keys(KINDS).map(function(k){return '<span><i class="dots"><i class="d-'+k+'"></i></i>'+KINDS[k]+"</span>"}).join("")+'</div></div>'+
   '<h2>'+jdate(sel)+'</h2>'+listOrEmpty(rows,"この日の予定はありません")+
   (parent?'<h2>予定を追加</h2><form class="f card" id="addevent"><div class="two"><label>日付<input id="ev-date" type="date" required value="'+sel+'"></label><label>時間<input id="ev-time" type="time"></label></div><label>内容<input id="ev-title" required maxlength="40" placeholder="授業参観"></label><div class="two"><label>種類<select id="ev-kind"><option value="school">学校</option><option value="home">家庭</option><option value="lesson">習い事（臨時）</option><option value="test">テスト</option></select></label><label>メモ<input id="ev-memo" maxlength="60" placeholder="持ち物など"></label></div><button class="btn" type="submit">追加する</button></form>':"")+
   '<h2>目標・期日のあるもの</h2>'+listOrEmpty(sortedGoals().map(function(g){return goalRow(g,parent)}),"まだありません")+
@@ -510,6 +514,9 @@ document.addEventListener("click",function(e){
   if(a==="pasteopen"){S.imp={status:"paste"};render();var pa=document.getElementById("paste-in");if(pa)pa.focus();return}
   if(a==="pasterun"){var pv=(document.getElementById("paste-in")||{}).value||"";try{var its=parseEvents(pv);S.imp=its.length?{status:"review",items:its}:{status:"error",err:"予定が見つかりませんでした。日付（2026-11-07 の形）を含む行を貼り付けてください。"}}catch(err){S.imp={status:"error",err:"予定が見つかりませんでした。日付（2026-11-07 の形）を含む行を貼り付けてください。"}}render();return}
   if(a==="impclose"){S.imp=null;render();return}
+  if(a==="bulkdelarm"){S.bulkDelArm=true;render();return}
+  if(a==="bulkdelno"){S.bulkDelArm=false;render();return}
+  if(a==="bulkdelgo"){var dels=importedEvents().map(function(x){return x.id});S.bulkDelArm=false;S.events=S.events.filter(function(x){return dels.indexOf(x.id)<0});render();dels.forEach(function(u){write("events/"+u,function(){return db.doc("events/"+u).delete()})});toast(dels.length+"件を削除しました");return}
   if(a==="loghana"){var lg=S.lessonlogs.find(function(x){return x.id===id});if(!lg)return;var hv=!lg.hanamaru;lg.hanamaru=hv;render();if(hv)toast("💮 花丸！ コインが1枚ふえました");write("lessonlogs/"+id,function(){return db.doc("lessonlogs/"+id).update({hanamaru:hv})});return}
   if(a==="dellog"){S.lessonlogs=S.lessonlogs.filter(function(x){return x.id!==id});render();write("lessonlogs/"+id,function(){return db.doc("lessonlogs/"+id).delete()});return}
   if(a==="logout"){firebase.auth().signOut();return}
