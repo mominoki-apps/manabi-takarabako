@@ -161,55 +161,6 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--blue)}
 .sheet-bg{position:fixed;inset:0;background:rgba(10,12,30,.45);z-index:30;display:grid;place-items:center;padding:20px}
 .sheet{background:var(--surface);border-radius:22px;padding:20px;width:100%;max-width:340px;display:grid;gap:12px}
 .pinbox{font-size:26px;letter-spacing:.5em;text-align:center}
-/* ---- ぼうけん（月の振り返り）・ずかん・まとめ入力・声入力 ---- */
-.tb-chest{border-radius:22px;padding:16px 18px;display:grid;gap:12px;background:linear-gradient(160deg,var(--blue-soft),var(--mint-soft))}
-.tb-chest h2{margin:0;font-size:20px}
-.gems{display:flex;flex-wrap:wrap;gap:9px;padding:12px 12px 10px;background:var(--surface);border-radius:14px}
-.gem{width:18px;height:18px;transform:rotate(45deg);border-radius:4px;background:var(--surface2)}
-.gem.on{background:var(--c);box-shadow:inset -3px -3px 0 rgba(0,0,0,.14),inset 3px 3px 0 rgba(255,255,255,.5)}
-.tb-sum{background:var(--surface);border-radius:14px;padding:10px 12px;display:grid;gap:2px}
-.tb-cta{border:none;border-radius:999px;min-height:50px;font:900 16px var(--font);background:var(--yellow);color:#2A1E00;cursor:pointer;box-shadow:0 4px 0 #C99400}
-.tb-cta:active{transform:translateY(2px);box-shadow:0 2px 0 #C99400}
-.tb-tl{display:grid;gap:8px}
-.tb-row{display:grid;grid-template-columns:58px 1fr;gap:12px;align-items:start;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:16px;padding:12px;font:500 14px var(--font);cursor:pointer}
-.tb-row .m{text-align:center;font-size:12px;font-weight:900;line-height:1.4}
-.tb-row .m i{display:block;font-style:normal;font-size:28px;line-height:1.2}
-.tb-row .tx{min-width:0;overflow-wrap:anywhere}
-.tb-row .tx b{font-size:11px;color:var(--muted);margin-right:4px}
-.tb-ago{background:var(--yellow-soft);border:none}
-.tb-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tb-photos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;display:block;max-width:100%}
-.tb-em{flex:none;width:34px;height:34px;display:grid;place-items:center;font-size:19px;border-radius:10px;background:var(--surface2)}
-.q-head{display:flex;align-items:center;gap:10px}
-.q-prog{flex:1;height:10px;border-radius:999px;background:var(--surface2);overflow:hidden}
-.q-prog i{display:block;height:100%;background:var(--blue);border-radius:999px}
-.q-box{display:grid;justify-items:center;gap:10px;text-align:center}
-.q-box .qe{font-size:52px;line-height:1}
-.q-box .cat{font-size:12px;font-weight:900;color:var(--blue);letter-spacing:.1em}
-.q-box .ttl{font-size:20px;font-weight:900;line-height:1.4}
-.q-box .micwrap{width:100%}
-.q-box textarea{min-height:110px;font-size:17px;text-align:left}
-.moods{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
-.mood{border:2px solid var(--line);background:var(--surface);color:var(--fg);border-radius:16px;padding:12px 6px;display:grid;justify-items:center;gap:2px;font:700 14px var(--font);cursor:pointer}
-.mood i{font-style:normal;font-size:36px;line-height:1.2}
-.mood[aria-pressed="true"]{border-color:var(--yellow);background:var(--yellow-soft)}
-.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
-.thumb{position:relative}
-.thumb img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;display:block}
-.thumb button{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;border:none;background:var(--surface);color:var(--fg);font-weight:900;cursor:pointer}
-.q-skip{background:none;border:none;color:var(--muted);font:500 13px var(--font);text-decoration:underline;text-underline-offset:3px;padding:6px;cursor:pointer}
-.q-done{display:grid;justify-items:center;gap:10px;text-align:center;padding:10px 0}
-.q-done .box{font-size:70px;line-height:1;animation:pop .5s ease-out}
-.micwrap{position:relative;display:block}
-.micwrap>textarea,.micwrap>input{padding-right:50px}
-.micbtn{position:absolute;right:6px;top:6px;width:34px;height:34px;border-radius:50%;border:none;background:var(--blue-soft);font-size:16px;line-height:1;cursor:pointer}
-.micbtn.on{background:var(--pink);animation:micp 1s infinite}
-@keyframes micp{50%{transform:scale(1.12)}}
-.brow{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:6px;padding-top:10px;border-top:1px dashed var(--line)}
-.brow .micwrap{grid-column:1/-1}
-.st{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:1px 9px;margin-left:6px;vertical-align:2px}
-.st.draft{background:var(--blue-soft);color:var(--blue)}
-.st.done{background:var(--yellow-soft);color:#8A6400}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -501,286 +452,9 @@ document.addEventListener("change",function(e){var t=e.target;if(!t||!t.id)retur
   var m=t.id.match(/^imp-(on|date|time|title|kind|memo)-(\d+)$/);if(m&&S.imp&&S.imp.items){var it=S.imp.items[+m[2]];if(!it)return;it[m[1]]=m[1]==="on"?t.checked:t.value;if(m[1]==="on")render()}});
 document.addEventListener("input",function(e){var t=e.target;if(!t||!t.id)return;var m=t.id.match(/^imp-(date|time|title|memo)-(\d+)$/);if(m&&S.imp&&S.imp.items){var it=S.imp.items[+m[2]];if(it)it[m[1]]=t.value}});
 
-/* ---------- ぼうけん（月の振り返り）・ずかん・まとめ入力・バックアップ・声入力 ---------- */
-var MOODS={tanoshii:{e:"😄",l:"たのしい"},ureshii:{e:"😊",l:"うれしい"},kanashii:{e:"😢",l:"かなしい"},iroiro:{e:"😵‍💫",l:"いろいろ"}};
-var GEMC=["#FF7A9A","#FFB13B","#FFD84A","#7ED957","#2FBF97","#3EC8D8","#3E9FE3","#6C7CF0","#A77BF0","#E57BD8","#FF8F6B"];
-var QS=[
-  {k:"mood",e:"😊",cat:"きもち",q:"どんな きもちだった？",type:"mood"},
-  {k:"like",e:"❤️",cat:"すき",q:"いま、いちばん すきなものは？",ph:"れい：きょうりゅう、サッカー"},
-  {k:"can",e:"🏆",cat:"せいちょう",q:"できるように なったことは？",ph:"れい：じてんしゃに のれた"},
-  {k:"try",e:"🚀",cat:"ちょうせん",q:"はじめて やってみたことは？",ph:"れい：ひとりで おつかい"},
-  {k:"find",e:"🔍",cat:"はっけん",q:"びっくりしたことは？",ph:"れい：あきの むしが いっぱい いた"},
-  {k:"happy",e:"💛",cat:"うれしい",q:"うれしかったことは？",ph:"れい：ほめてもらえた"},
-  {k:"fun",e:"🧸",cat:"おもいで",q:"いちばん たのしかったことは？",ph:"れい：うみで つり"},
-  {k:"friend",e:"🤝",cat:"なかま",q:"だれと あそんで たのしかった？",ph:"れい：がっこうの ともだち"},
-  {k:"me",e:"🎨",cat:"じぶん",q:"じぶんの すきなところは？",ph:"れい：さいごまで がんばるところ"},
-  {k:"dream",e:"🌈",cat:"ゆめ",q:"やってみたいことは？",ph:"れい：おおきい さかなを つりたい"},
-  {k:"next",e:"🎁",cat:"これから",q:"これからの たのしみは？",ph:"れい：クリスマス"},
-  {k:"photos",e:"📸",cat:"しゃしん",q:"おもいでの しゃしん",type:"photo"},
-  {k:"parent",e:"✉️",cat:"おうちのひと",q:"おうちのひとから ひとこと",type:"parent"}
-];
-var GEM_KEYS=QS.slice(0,11).map(function(x){return x.k});
-var ZCATS={like:{l:"だいすき",e:"❤️"},can:{l:"できた！",e:"🏆"},try:{l:"はじめて",e:"🚀"},find:{l:"はっけん",e:"🔍"},fun:{l:"たのしかった",e:"🧸"},kind:{l:"やさしさ",e:"💗"},dream:{l:"ゆめ",e:"🌈"}};
-var ZORDER=["like","can","try","find","fun","kind","dream","photos"];
-var BY_LABEL={mom:"母の観察",kid:"本人の言葉",ai:"AIの仮説"};
-/* 初回登録レポート（2026年9月30日締め）。本人の言葉・母の観察・AIの仮説を区別。健康記録は含めない */
-var SEED0930={
-  entries:[
-    ["like","2026-06","おにくが だいすき。たのしみにして べんきょうを がんばった"],
-    ["like","2026-06","かんこくのりが すきに なった"],
-    ["like","2026-08","マンゴスチンが すきな くだものに なった"],
-    ["like","2026-09","シャインマスカット。おべんとうに いれてほしい"],
-    ["like","2026-09","あたらしい あかい くつ"],
-    ["like","2026-06","おりがみ"],
-    ["like","2026-09","ママと よむ えほん"],
-    ["like","2026-09","ママとの おふろ（しゅうに 1かいの たのしみ）"],
-    ["like","2026","かぞくとの おでかけや たいけん"],
-    ["like","2026-09","えいが『きめつの やいば』を ママと えいがかんで みた"],
-    ["can","2026","かんじや けいさんの べんきょうを つづけている"],
-    ["can","2026","テストで いい てんを とって よろこんだ"],
-    ["can","2026-06","おりがみに むちゅうに なって さくひんを つくった"],
-    ["can","2026-06","こまったことや きぼうを じぶんの ことばで つたえられた"],
-    ["try","2026-08","はじめての ラフティング。こわがらずに たのしんだ"],
-    ["try","2026","あたらしい たべものに であって、すきなものが ふえた"],
-    ["kind","2026-08","ラフティングで ママが みずに おちたとき、たすけようとした"],
-    ["kind","2026-06","つくった おりがみを Hくんに プレゼントした"],
-    ["kind","2026-09","ママに「だいすき」「あいしてる」と つたえている"],
-    ["fun","2026-08","ラフティングで ワクワクした かお"],
-    ["fun","2026-09-01","しぎょうしき。あたらしい あかい くつで よろこんだ"],
-    ["fun","2026-09-03","ねがおを かわいいと いわれて、はにかんで よろこんだ"],
-    ["fun","2026-09-04","ママと いっしょに おふろ。たのしそうに すごした"],
-    ["note","2026-06","学校で苦手に感じる相手がいることを伝え、席替えを希望した（保護者のみ表示）"],
-    ["note","2026","水泳などの習い事の記録あり。曜日・頻度・進級状況は未確認（保護者のみ表示）"],
-    ["note","2026","学童での活動やイベントに参加（保護者のみ表示）"]
-  ],
-  summary:"まるくんは すきなものを たくさん みつけたね。はじめての ラフティングも こわがらずに たのしんだね。ママや ともだちに やさしい きもちを つたえられたね。",
-  aiNotes:"【AIの仮説・性格診断ではありません】\n①すきなものを見つける力（食べ物・遊び・体験）\n②気持ちを伝える力（嬉しいこと・好き・苦手・希望）\n③新しい世界を楽しむ力（ラフティング・制作）\n④人への思いやり（ママを助けようとした・作品を贈った）\n⑤安心できる親子の時間（お風呂・絵本・愛情表現）\n未確認：好きな教科・好きな色・好きな音楽・将来の夢・今月の幸福度・本人の自己評価",
-  wishes:"自分の人生を自分で選んでほしい／経済的に自立してほしい／自分自身を好きでいてほしい／好きなことに挑戦してほしい／心から笑って過ごしてほしい／困ったときは安心して相談してほしい／大人になっても友達のように話せる親子でいたい／教育や経験の機会を十分に与えたい"
-};
-function importSeed(){if(!db){toast("いまは保存できません");return}
-  SEED0930.entries.forEach(function(x,i){var id="r0930-"+pad(i+1),doc={when:x[1],cat:x[0],text:x[2],src:"report0930",by:"mom",parentOnly:x[0]==="note",created:Date.now()};
-    S.entries=S.entries.filter(function(e){return e.id!==id});S.entries.push(Object.assign({id:id},doc));extWrite("entries",id,doc)});
-  var pd=Object.assign({},mdoc(PAST)||{},{month:PAST,summary:SEED0930.summary,summaryOk:false,aiNotes:SEED0930.aiNotes,wishes:SEED0930.wishes,source:"report0930",updated:Date.now()});
-  S.months[PAST]=pd;extWrite("months",PAST,pd);
-  var patch={seed0930:today()};if(!set().nickname)patch.nickname="まるくん";if(!set().grade)patch.grade="2";saveSettings(patch);
-  S.tb.cur=PAST;S.ai2={busy:false,text:null,err:""};render();toast("初回レポートを取り込みました（"+SEED0930.entries.length+"件）")}
-var PAST="upto-2026-09",FIRST_YM="2026-10";
-S.months={};S.entries=[];S.tb={view:"bouken",cur:tbYM(new Date()),zk:"like"};S.quest=null;S.bulk=null;S.ai2={busy:false,text:null,err:""};S.extDenied=false;S.restore=null;
-
-function tbYM(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)}
-function shiftYM(k,n){var p=k.split("-");return tbYM(new Date(+p[0],+p[1]-1+n,1))}
-function ymLabel(k,kid){if(k===PAST)return kid?"〜2026ねん9がつ":"〜2026年9月";var p=k.split("-");return kid?(+p[0])+"ねん "+(+p[1])+"がつ":(+p[0])+"年"+(+p[1])+"月"}
-function whenLabel(s){if(!s)return "";if(s.length===10)return jdate(s);if(s.length===7)return ymLabel(s,true);return s+"ねん"}
-function kidName(){return set().nickname||"ぼく"}
-function questTitle(k){return k===PAST?"2026ねん9がつまでの "+kidName():(+k.split("-")[1])+"がつの "+kidName()}
-function mdoc(k){return S.months[k]||null}
-function filled(d,k){if(!d)return false;var v=d[k];return Array.isArray(v)?v.length>0:!!(v&&String(v).trim())}
-function gemCount(d){return GEM_KEYS.filter(function(k){return filled(d,k)}).length}
-function realMonths(){return Object.keys(S.months).filter(function(k){return /^\d{4}-\d{2}$/.test(k)}).sort().reverse()}
-function gemsHTML(d){return '<div class="gems" aria-label="ほうせき '+gemCount(d)+'こ">'+GEM_KEYS.map(function(k,i){return '<span class="gem'+(filled(d,k)?" on":"")+'" style="--c:'+GEMC[i]+'"></span>'}).join("")+"</div>"}
-function micField(id,val,ph,input,extra){
-  var f=input?'<input id="'+id+'" maxlength="60" value="'+esc(val||"")+'" placeholder="'+esc(ph||"")+'"'+(extra||"")+'>':'<textarea id="'+id+'" rows="3" maxlength="300" placeholder="'+esc(ph||"")+'"'+(extra||"")+'>'+esc(val||"")+'</textarea>';
-  return '<span class="micwrap">'+f+'<button type="button" class="micbtn" data-act="mic" data-v="'+id+'" aria-label="こえで いれる">🎤</button></span>'}
-function extWrite(col,id,data){
-  if(!db){toast("いまは保存できません");return Promise.resolve(false)}
-  return write(col+"/"+id,function(){return data===null?db.doc(col+"/"+id).delete():db.doc(col+"/"+id).set(data)}).then(function(){return true})}
-
-/* ---- kid: ぼうけん ---- */
-function chestHTML(k){
-  var d=mdoc(k),n=gemCount(d),lead;
-  if(!d)lead=k===PAST?"10がつより まえの たからものを まとめて しまおう！":"たからものを あつめよう！";
-  else if(n>=GEM_KEYS.length)lead="たからばこが いっぱいに なったよ！";
-  else lead="ほうせき "+n+"こ。とばした しつもんが あっても だいじょうぶ。";
-  var sum="";
-  if(d&&d.summary&&d.summaryOk)sum='<div class="tb-sum"><span class="badge on" style="justify-self:start">まとめ</span><div>'+esc(d.summary)+"</div></div>";
-  else if(d){var b=[];if(d.mood&&MOODS[d.mood])b.push(MOODS[d.mood].e+" "+MOODS[d.mood].l);if(filled(d,"like"))b.push("❤️ "+esc(d.like));if(filled(d,"can"))b.push("🏆 "+esc(d.can));
-    if(b.length)sum='<div class="tb-sum">'+b.map(function(x){return "<div>"+x+"</div>"}).join("")+"</div>"}
-  return '<div class="tb-chest"><h2>'+esc(questTitle(k))+'</h2><div class="sub">'+lead+"</div>"+gemsHTML(d)+sum+
-    '<button class="tb-cta" data-act="quest" data-v="'+k+'">'+(d?"✏️ なおす・たす":"🗺️ ぼうけんを きろくする")+"</button></div>"}
-function tbRow(k){var d=S.months[k],md=MOODS[d.mood];
-  var lines=[["すき","like"],["できた","can"],["はじめて","try"],["ゆめ","dream"]].filter(function(x){return filled(d,x[1])}).map(function(x){return "<div><b>"+x[0]+"</b>"+esc(d[x[1]])+"</div>"}).join("");
-  var p=k.split("-"),lab=k===PAST?"〜2026<br>9がつ":p[0]+"<br>"+(+p[1])+"がつ";
-  return '<button class="tb-row" data-act="tbmonth" data-v="'+k+'"><span class="m"><i>'+(md?md.e:"🫧")+"</i>"+lab+'</span><span class="tx">'+(lines||(k===PAST&&d.source?'<div class="sub">おうちのひとの きろく</div>':'')||'<div class="sub">きもちだけ きろく</div>')+'<div class="sub">ほうせき '+gemCount(d)+"こ</div></span></button>"}
-function kidBouken(){
-  var k=S.tb.cur,isPast=k===PAST,nowYM=tbYM(new Date()),ms=realMonths(),past=mdoc(PAST);
-  var agoK=isPast?"":shiftYM(k,-12),ago=isPast?null:mdoc(agoK);
-  var agoHTML=ago?'<div class="card tb-ago" style="margin-top:12px"><div style="font-weight:900">1ねんまえの '+esc(kidName())+' <span class="sub">'+ymLabel(agoK,true)+"</span></div>"+
-    (filled(ago,"like")?"<div>❤️ すきだったもの："+esc(ago.like)+"</div>":"")+(filled(ago,"can")?"<div>🏆 できたこと："+esc(ago.can)+"</div>":"")+(filled(ago,"dream")?"<div>🌈 ゆめ："+esc(ago.dream)+"</div>":"")+"</div>":"";
-  return '<div class="calhead" style="margin-top:12px"><button class="btn small ghost" data-act="tbm" data-v="-1" aria-label="まえの つき"'+(!isPast&&k<=FIRST_YM?" disabled":"")+'>◀</button><b>'+ymLabel(k,true)+'</b><button class="btn small ghost" data-act="tbm" data-v="1" aria-label="つぎの つき"'+(isPast||k<nowYM?"":" disabled")+">▶</button></div>"+
-    chestHTML(k)+agoHTML+
-    "<h2>せいちょう ぼうけんマップ</h2>"+((ms.length||past)?'<div class="tb-tl">'+ms.map(tbRow).join("")+(past?tbRow(PAST):"")+"</div>":'<div class="empty">きろくした つきが ここに ならぶよ</div>')+
-    (!past?'<button class="btn ghost" style="width:100%;margin-top:10px" data-act="quest" data-v="'+PAST+'">📦 2026ねん9がつまでを まとめて きろくする</button>':"")}
-
-/* ---- kid: ずかん ---- */
-function zItems(k){var out=[];
-  if(k==="photos"){Object.keys(S.months).forEach(function(m){var d=S.months[m];if(filled(d,"photos"))out.push({key:m===PAST?"2026-09-99":m,when:ymLabel(m,true),photos:d.photos})});return out.sort(function(a,b){return b.key.localeCompare(a.key)})}
-  Object.keys(S.months).forEach(function(m){var d=S.months[m];if(filled(d,k))out.push({key:m===PAST?"2026-09-99":m,when:ymLabel(m,true),text:d[k]})});
-  S.entries.forEach(function(e){if(e.cat===k&&!e.parentOnly)out.push({key:e.when||"",when:whenLabel(e.when),text:e.text})});
-  if(k==="can")S.lessonlogs.forEach(function(l){if(l.hanamaru&&l.memo)out.push({key:l.date||"",when:jdate(l.date)+" ・"+l.name,text:l.memo})});
-  return out.sort(function(a,b){return b.key.localeCompare(a.key)})}
-function kidZukan(){
-  var k=S.tb.zk,z=ZCATS[k]||{l:"おもいで",e:"📸"},items=zItems(k),body;
-  var chips='<div class="seg" style="margin-top:12px">'+ZORDER.map(function(x){var zz=ZCATS[x]||{l:"おもいで",e:"📸"};return '<button data-act="tbzk" data-v="'+x+'" aria-pressed="'+(x===k)+'">'+zz.e+" "+zz.l+"</button>"}).join("")+"</div>";
-  if(k==="photos")body=items.length?items.map(function(it){return '<div class="card" style="margin-top:10px"><div style="font-weight:900;margin-bottom:8px">'+it.when+'</div><div class="tb-photos">'+it.photos.map(function(p){return '<img alt="" src="'+esc(p)+'">'}).join("")+"</div></div>"}).join(""):'<div class="empty" style="margin-top:12px">まだ しゃしんは ないよ。ぼうけんの さいごに いれられるよ</div>';
-  else body='<div style="margin-top:12px">'+listOrEmpty(items.map(function(it){return '<div class="li"><span class="tb-em">'+z.e+'</span><div class="main"><div class="meta">'+esc(it.when)+"</div><div>"+esc(it.text)+"</div></div></div>"}),"まだ からっぽ。きろくすると たまっていくよ")+"</div>";
-  return chips+body}
-function kidTreasure(){
-  return '<h1>'+esc(kidName())+'の たからばこ</h1><div class="sub">まいつき 1かい、おうちの ひとと ふりかえろう</div>'+
-    '<div class="seg" style="margin-top:12px"><button data-act="tbview" data-v="bouken" aria-pressed="'+(S.tb.view==="bouken")+'">🗺️ ぼうけん</button><button data-act="tbview" data-v="zukan" aria-pressed="'+(S.tb.view==="zukan")+'">📖 ずかん</button></div>'+
-    (S.extDenied?'<div class="notice" style="margin-top:10px">ぼうけんの きろくを よみこめませんでした。おうちの ひとに みてもらってね。</div>':"")+
-    (S.tb.view==="zukan"?kidZukan():kidBouken())}
-
-/* ---- quest sheet ---- */
-function openQuest(k){var base=mdoc(k)||{};var dr=JSON.parse(JSON.stringify(base));if(!Array.isArray(dr.photos))dr.photos=[];S.quest={key:k,step:0,draft:dr,done:false};render()}
-function questSheet(){var st=S.quest,body;
-  if(st.done)body='<div class="q-done"><div class="box">🎁</div><div class="ttl" style="font-size:20px;font-weight:900">たからばこに しまったよ！</div><div>ほうせき '+gemCount(st.draft)+"こ</div>"+gemsHTML(st.draft)+'<div class="sub">こたえて くれて ありがとう。</div><button type="button" class="tb-cta" style="width:100%" data-act="qclose">もどる</button></div>';
-  else{var q=QS[st.step],d=st.draft,total=QS.length,input;
-    if(q.type==="mood")input='<div class="moods">'+Object.keys(MOODS).map(function(k){var m=MOODS[k];return '<button type="button" class="mood" data-act="qmood" data-v="'+k+'" aria-pressed="'+(d.mood===k)+'"><i>'+m.e+"</i>"+m.l+"</button>"}).join("")+"</div>";
-    else if(q.type==="photo")input='<label class="btn photo-btn" for="q-photo" style="width:100%">📷 しゃしんを えらぶ（3まいまで）</label><input id="q-photo" type="file" accept="image/*" multiple hidden>'+(d.photos.length?'<div class="thumbs">'+d.photos.map(function(p,i){return '<div class="thumb"><img alt="" src="'+esc(p)+'"><button type="button" data-act="qrmphoto" data-v="'+i+'" aria-label="けす">×</button></div>'}).join("")+"</div>":"");
-    else if(q.type==="parent")input=micField("q-text",d.parent,"例 最後まであきらめずに練習していたね")+'<div class="sub">子どもへのメッセージ。大きくなってから読み返せます</div>';
-    else input=micField("q-text",d[q.k],q.ph)+'<div class="sub">🎤 で こえでも いれられるよ。おうちの ひとが かいても OK</div>';
-    body='<div class="q-head"><button type="button" class="btn small ghost" data-act="qclose" aria-label="とじる">✕</button><div class="q-prog"><i style="width:'+Math.round(st.step/total*100)+'%"></i></div><span class="sub" style="font-weight:700">'+(st.step+1)+" / "+total+"</span></div>"+
-      '<div class="sub" style="text-align:center;font-weight:700">'+esc(questTitle(st.key))+"</div>"+
-      '<div class="q-box"><div class="qe">'+q.e+'</div><div class="cat">'+q.cat+'</div><div class="ttl">'+q.q+"</div>"+input+"</div>"+
-      '<div class="row"><button type="button" class="btn ghost grow" data-act="qback"'+(st.step===0?" disabled":"")+'>もどる</button><button type="button" class="btn grow" data-act="qnext">'+(st.step===total-1?"しまう 🎁":"つぎへ")+"</button></div>"+
-      (q.type!=="photo"&&q.type!=="parent"?'<button type="button" class="q-skip" data-act="qskip">この しつもんは とばす</button>':"")}
-  return '<div class="sheet-bg"><form class="sheet wide f" id="questform" onsubmit="return false">'+body+"</form></div>"}
-function questNext(skip){var st=S.quest,q=QS[st.step];
-  if(skip){if(q.type==="mood")delete st.draft.mood;else st.draft[q.k]=""}
-  if(st.step<QS.length-1){st.step++;render();return}
-  var doc=Object.assign({},st.draft,{month:st.key,updated:Date.now()});if(doc.summaryOk===undefined)doc.summaryOk=false;
-  S.months[st.key]=doc;st.done=true;render();extWrite("months",st.key,doc)}
-function shrinkImg(file){return new Promise(function(res,rej){var url=URL.createObjectURL(file),img=new Image();img.onload=function(){var s=Math.min(1,560/Math.max(img.naturalWidth,img.naturalHeight)),c=document.createElement("canvas");c.width=Math.round(img.naturalWidth*s);c.height=Math.round(img.naturalHeight*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c.toDataURL("image/jpeg",0.6))};img.onerror=function(){URL.revokeObjectURL(url);rej()};img.src=url})}
-
-/* ---- parent: 振り返り ---- */
-function bulkRow(r,i){var ys=[];for(var y=2019;y<=2026;y++)ys.push(y);
-  return '<div class="brow">'+
-    '<select id="b-y-'+i+'" aria-label="年">'+ys.map(function(y){return '<option value="'+y+'"'+(String(r.y)===String(y)?" selected":"")+">"+y+"年</option>"}).join("")+"</select>"+
-    '<select id="b-m-'+i+'" aria-label="月"><option value="">月？</option>'+[1,2,3,4,5,6,7,8,9,10,11,12].map(function(m){return '<option value="'+m+'"'+(String(r.m)===String(m)?" selected":"")+">"+m+"月</option>"}).join("")+"</select>"+
-    '<select id="b-cat-'+i+'" aria-label="種類">'+Object.keys(ZCATS).map(function(k){return '<option value="'+k+'"'+(r.cat===k?" selected":"")+">"+ZCATS[k].e+" "+ZCATS[k].l+"</option>"}).join("")+"</select>"+
-    micField("b-text-"+i,r.text,"例 ひらがなが全部書けた")+"</div>"}
-function pReview(){
-  var k=S.tb.cur,d=mdoc(k),aiText=S.ai2.text!=null?S.ai2.text:(d&&d.summary)||"";
-  var st=d&&d.summaryOk?'<span class="st done">確定済み</span>':(aiText?'<span class="st draft">下書き</span>':"");
-  if(!S.bulk)S.bulk=[{y:2026,m:9,cat:"can",text:""}];
-  var opts=[PAST,k].concat(realMonths()).filter(function(v,i,a){return a.indexOf(v)===i}).sort().reverse();
-  var saved=S.entries.filter(function(e){return e.src==="bulk"||e.src==="report0930"}).sort(function(a,b){return (b.when||"").localeCompare(a.when||"")});
-  return '<h1>振り返り</h1><div class="sub">子どもの「ぼうけん」（月1回の振り返り）の管理と、10月より前の記録のまとめ入力</div>'+
-  (S.extDenied?'<div class="notice" style="margin-top:10px">振り返りの記録を読み書きできませんでした。FirebaseのFirestoreルールで、months と entries のコレクションへのアクセスが許可されているか確認してください。</div>':"")+
-  '<h2>月のまとめ'+st+'</h2><div class="card stack">'+
-    '<label class="f" style="display:grid;gap:4px;font-size:12px;font-weight:700;color:var(--muted)">どの月<select id="r-month">'+opts.map(function(x){return '<option value="'+x+'"'+(x===k?" selected":"")+">"+ymLabel(x)+"</option>"}).join("")+"</select></label>"+
-    (d?'<div class="sub">子どもの答えだけを使って、AIがまとめの下書きを作ります。確認して「確定」すると、子どもの「ぼうけん」に表示されます。</div>'+micField("r-ai",aiText,"ここに下書きが入ります。自分で書いても大丈夫です")+
-      (S.ai2.err?'<div class="sub" style="color:var(--pink);white-space:pre-wrap">'+esc(S.ai2.err)+"</div>":"")+
-      '<div class="row"><button class="btn ghost grow" data-act="r-ai"'+(S.ai2.busy?" disabled":"")+">"+(S.ai2.busy?"作っています…":"✨ AIで下書き")+'</button><button class="btn grow" data-act="r-ok">確定</button></div>'
-     :'<div class="sub">この月はまだ記録がありません。</div>')+
-    '<button class="btn ghost" data-act="quest" data-v="'+k+'">🗺️ この月のぼうけんを開く</button></div>'+
-  (d&&(d.aiNotes||d.wishes)?'<h2>'+ymLabel(k)+'のメモ（保護者のみ）</h2><div class="card stack">'+(d.wishes?'<div><b>🌈 ママが願っている未来</b><div class="sub" style="color:var(--fg)">'+esc(d.wishes)+'</div><div class="sub">これは母親の願いで、本人の将来の希望ではありません</div></div>':"")+(d.aiNotes?'<div style="white-space:pre-wrap" class="sub">'+esc(d.aiNotes)+'</div>':"")+'</div>':"")+
-  '<h2>📥 初回登録レポート（2026年9月30日締め）</h2><div class="card stack"><div class="sub">9月末までの「だいすき・できた・はじめて・やさしさ・おもいで」'+SEED0930.entries.length+'件と、まとめの下書き・ママの願い・AIの仮説を取り込みます。学校の困りごとや習い事のメモは保護者だけに表示します。健康記録はこのアプリには入れていません。</div>'+
-    (set().seed0930?'<div class="notice">'+jdate(set().seed0930)+'に取り込み済みです。もう一度押すと同じ内容で上書きします（重複はしません）。</div>':"")+
-    '<button class="btn" data-act="seed0930">'+(set().seed0930?"もう一度取り込む":"取り込む")+'</button></div>'+
-  '<h2>📦 2026年9月までをまとめて入れる</h2><div class="card stack"><div class="sub">10月から毎月の記録を始める前の分です。時期と種類を選んで、何件でもまとめて保存できます。月が分からないときは「月？」のままで大丈夫です。</div>'+
-    S.bulk.map(bulkRow).join("")+
-    '<div class="row"><button class="btn ghost grow" data-act="b-add">＋ 行を増やす</button><button class="btn grow" data-act="b-save">まとめて保存</button></div>'+
-    '<button class="btn ghost" data-act="quest" data-v="'+PAST+'">🗺️ 10の質問で「9月までの'+esc(kidName())+'」をまとめる</button></div>'+
-  (saved.length?'<h2>まとめ入力した記録（'+saved.length+'件）</h2>'+listOrEmpty(saved.map(function(e){return '<div class="li"><span class="tb-em">'+(ZCATS[e.cat]?ZCATS[e.cat].e:"📝")+'</span><div class="main"><div class="meta">'+esc(whenLabel(e.when))+(e.by?" ・"+BY_LABEL[e.by]:"")+(e.parentOnly?" ・保護者のみ":"")+"</div><div>"+esc(e.text)+'</div></div><button class="btn small warn" data-act="b-del" data-id="'+e.id+'" aria-label="削除">✕</button></div>'}),""):"")+
-  '<h2>💾 データの保存（バックアップ）</h2><div class="card stack"><div class="sub">記録はFirebaseに自動で保存されています。念のため、全部の記録を1つのファイルにしてスマホに残せます。月に1回ほど保存しておくと安心です。</div>'+
-    '<button class="btn" data-act="bk-save">全部の記録をファイルに保存</button>'+
-    '<label class="btn ghost photo-btn" for="bk-in">📂 バックアップから戻す</label><input id="bk-in" type="file" accept=".json,application/json" hidden>'+
-    (S.restore?'<div class="notice">'+esc(S.restore.label)+"の記録 "+S.restore.count+'件を読み込みました。同じ記録は上書きされ、今ある記録は残ります。</div><div class="row"><button class="btn ghost grow" data-act="bk-cancel">やめる</button><button class="btn warn grow" data-act="bk-go">戻す</button></div>':"")+"</div>"+
-  '<h2>🎤 声で入れる方法</h2><div class="notice">入力欄の🎤を押すと、声入力が使える端末ではそのまま文字になります。使えない場合は入力欄が開くので、キーボードの🎤ボタンを使ってください。</div>'}
-
-/* ---- AI summary (Firebase AI Logic) ---- */
-function makeSummary(){var d=mdoc(S.tb.cur);if(!d)return;
-  var lines=QS.slice(0,11).filter(function(q){return filled(d,q.k)}).map(function(q){return q.k==="mood"?"きもち："+(MOODS[d.mood]?MOODS[d.mood].l:""):q.q+" → "+d[q.k]});
-  if(!lines.length){S.ai2.err="答えがまだないので、まとめられません。";render();return}
-  var prompt="7さいの こどもの ふりかえりの まとめを つくって ください。\nルール：\n- ひらがな ちゅうしん、みじかい ぶんで 3〜4ぶん、120もじ いない\n- したの こたえに ある ことだけを つかう。かいていない できごとを つくらない\n- のうりょくより、ちょうせんした ことや たのしんだ ことを みとめる\n- ほかの こと くらべない、てんすうを つけない、「できなかった」は かかない\n- よびかけは「"+kidName()+"」\n- まとめの ぶんしょう だけを かえす\n\n"+ymLabel(S.tb.cur,true)+"の こたえ：\n"+lines.join("\n");
-  S.ai2.busy=true;S.ai2.err="";render();
-  loadAI().then(function(x){var models=(set().aiModel?[set().aiModel]:[]).concat(AI_MODELS),i=0,lastErr;
-    function tryNext(){if(i>=models.length)return Promise.reject(lastErr);var model=x.aiMod.getGenerativeModel(x.ai,{model:models[i++],generationConfig:{temperature:0.4}});
-      return model.generateContent(prompt).then(function(r){return r.response.text()},function(e){lastErr=e;var m=String(e&&e.message||"");if(/404|not found|not supported|unsupported|NOT_FOUND|model/i.test(m)&&!/quota|429/.test(m))return tryNext();throw e})}
-    return tryNext()}).then(function(t){S.ai2.busy=false;S.ai2.text=String(t||"").trim();render()},function(e){S.ai2.busy=false;S.ai2.err=aiErrMsg0(e);render()})}
-
-/* ---- backup ---- */
-var BK_COLS=["checks","events","tests","money","wishes","goals","promises","rules","lessonlogs","months","entries"];
-function saveBackup(){
-  var out={app:"manabi-takarabako",version:1,exportedAt:new Date().toISOString(),settings:S.settings||null,data:{}};
-  BK_COLS.forEach(function(c){if(c==="checks"){out.data.checks=Object.keys(S.checks).map(function(id){return {id:id,data:S.checks[id]}})}else if(c==="months"){out.data.months=Object.keys(S.months).map(function(id){return {id:id,data:S.months[id]}})}
-    else out.data[c]=(S[c]||[]).map(function(r){var o=Object.assign({},r),id=o.id;delete o.id;return {id:id,data:o}})});
-  var blob=new Blob([JSON.stringify(out)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="manabi-takarabako-"+today()+".json";document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);a.remove()},2000);
-  var n=0;Object.keys(out.data).forEach(function(c){n+=out.data[c].length});toast("ファイルを保存しました（"+n+"件）")}
-function runRestore(){var r=S.restore;if(!r||!db)return;S.restore=null;render();var jobs=[];
-  if(r.json.settings)jobs.push(write("app/settings",function(){return db.doc("app/settings").set(r.json.settings)}));
-  Object.keys(r.json.data||{}).forEach(function(c){if(BK_COLS.indexOf(c)<0)return;(r.json.data[c]||[]).forEach(function(x){if(x&&x.id&&x.data)jobs.push(write(c+"/"+x.id,function(){return db.doc(c+"/"+x.id).set(x.data)}))})});
-  Promise.all(jobs).then(function(){toast(r.count+"件を戻しました")})}
-
-/* ---- mic ---- */
-var rec=null;
-function startMic(id,btn){var t=document.getElementById(id);if(!t)return;
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  function fb(){btn.classList.remove("on");toast("キーボードの 🎤 で こえで いれてね");t.focus()}
-  if(rec){try{rec.stop()}catch(e){}rec=null;btn.classList.remove("on");return}
-  if(!SR){fb();return}
-  try{rec=new SR();rec.lang="ja-JP";rec.interimResults=false;
-    rec.onresult=function(e){var s=[].map.call(e.results,function(r){return r[0].transcript}).join("");t.value=(t.value?t.value+" ":"")+s;t.dispatchEvent(new Event("input",{bubbles:true}))};
-    rec.onerror=function(){rec=null;fb()};rec.onend=function(){rec=null;btn.classList.remove("on")};
-    rec.start();btn.classList.add("on");toast("きいてるよ。はなしてね")}catch(e){rec=null;fb()}}
-function enhanceMics(){var app=document.getElementById("app");if(!app)return;
-  [].forEach.call(app.querySelectorAll("textarea, #w-name, #lk-name, #p-text, #ks-note, #g-title, #lg-name"),function(el){
-    if(!el.id||(el.parentNode&&el.parentNode.classList&&el.parentNode.classList.contains("micwrap"))||el.id==="paste-in")return;
-    var w=document.createElement("span");w.className="micwrap";el.parentNode.insertBefore(w,el);w.appendChild(el);
-    var b=document.createElement("button");b.type="button";b.className="micbtn";b.dataset.act="mic";b.dataset.v=el.id;b.setAttribute("aria-label","こえで いれる");b.textContent="🎤";w.appendChild(b)})}
-
-/* ---- events for the additions ---- */
-document.addEventListener("click",function(e){
-  var b=e.target.closest("[data-act]");if(!b)return;var a=b.dataset.act,v=b.dataset.v,st=S.quest;
-  if(a==="mic"){e.preventDefault();startMic(v,b);return}
-  if(a==="tbview"){S.tb.view=v;render();return}
-  if(a==="tbzk"){S.tb.zk=v;render();return}
-  if(a==="tbm"){S.tb.cur=S.tb.cur===PAST?FIRST_YM:shiftYM(S.tb.cur,+v);S.ai2={busy:false,text:null,err:""};render();return}
-  if(a==="tbmonth"){S.tb.cur=v;render();window.scrollTo(0,0);return}
-  if(a==="quest"){openQuest(v);return}
-  if(a==="qclose"){S.quest=null;render();return}
-  if(a==="qmood"&&st){st.draft.mood=v;render();return}
-  if(a==="qrmphoto"&&st){st.draft.photos.splice(+v,1);render();return}
-  if(a==="qback"&&st){if(st.step>0){st.step--;render()}return}
-  if(a==="qnext"&&st){questNext(false);return}
-  if(a==="qskip"&&st){questNext(true);return}
-  if(a==="r-ai"){makeSummary();return}
-  if(a==="r-ok"){var d=mdoc(S.tb.cur),el=document.getElementById("r-ai"),sv=el?el.value.trim():"";if(!d)return;if(!sv){toast("まとめが空です");return}
-    var nd=Object.assign({},d,{summary:sv,summaryOk:true,updated:Date.now()});S.months[S.tb.cur]=nd;S.ai2.text=null;render();extWrite("months",S.tb.cur,nd);toast("確定しました");return}
-  if(a==="b-add"){var last=S.bulk[S.bulk.length-1]||{y:2026,m:9,cat:"can"};S.bulk.push({y:last.y,m:last.m,cat:last.cat,text:""});render();return}
-  if(a==="b-save"){var rows=S.bulk.filter(function(r){return r.text&&r.text.trim()});if(!rows.length){toast("内容を入れてください");return}
-    if(rows.some(function(r){return +r.y===2026&&+r.m>9})){toast("2026年9月までの分を入れてください");return}
-    rows.forEach(function(r){var id=uid(),doc={when:r.m?r.y+"-"+pad(r.m):String(r.y),cat:r.cat,text:r.text.trim(),src:"bulk",created:Date.now()};S.entries.push(Object.assign({id:id},doc));extWrite("entries",id,doc)});
-    S.bulk=null;render();toast(rows.length+"件 保存しました");return}
-  if(a==="b-del"){var id=b.dataset.id;S.entries=S.entries.filter(function(x){return x.id!==id});render();extWrite("entries",id,null);return}
-  if(a==="bk-save"){saveBackup();return}
-  if(a==="seed0930"){importSeed();return}
-  if(a==="bk-cancel"){S.restore=null;render();return}
-  if(a==="bk-go"){runRestore();return}
-});
-document.addEventListener("input",function(e){var t=e.target;if(!t||!t.id)return;
-  if(t.id==="q-text"&&S.quest){var q=QS[S.quest.step];S.quest.draft[q.type==="parent"?"parent":q.k]=t.value;return}
-  if(t.id==="r-ai"){S.ai2.text=t.value;return}
-  var m=t.id.match(/^b-(y|m|cat|text)-(\d+)$/);if(m&&S.bulk&&S.bulk[+m[2]])S.bulk[+m[2]][m[1]]=t.value});
-document.addEventListener("change",function(e){var t=e.target;if(!t||!t.id)return;
-  var m=t.id.match(/^b-(y|m|cat)-(\d+)$/);if(m&&S.bulk&&S.bulk[+m[2]]){S.bulk[+m[2]][m[1]]=t.value;return}
-  if(t.id==="r-month"){S.tb.cur=t.value;S.ai2={busy:false,text:null,err:""};render();return}
-  if(t.id==="q-photo"&&S.quest){var files=[].slice.call(t.files||[]),room=3-S.quest.draft.photos.length;if(files.length>room)toast("しゃしんは 3まいまでです");
-    files.slice(0,Math.max(0,room)).reduce(function(p,f){return p.then(function(){return shrinkImg(f).then(function(u){S.quest.draft.photos.push(u)},function(){toast("この しゃしんは よみこめませんでした")})})},Promise.resolve()).then(render);return}
-  if(t.id==="bk-in"){var f=t.files&&t.files[0];t.value="";if(!f)return;var rd=new FileReader();rd.onload=function(){try{var j=JSON.parse(rd.result);if(!j||j.app!=="manabi-takarabako"||!j.data)throw 0;var n=0;Object.keys(j.data).forEach(function(c){n+=(j.data[c]||[]).length});
-      S.restore={json:j,count:n,label:jdate(String(j.exportedAt||"").slice(0,10)||today())};render()}catch(err){toast("まなびの宝箱のバックアップファイルを選んでください")}};rd.readAsText(f);return}
-});
-function subscribeExt(){
-  function onErr(e){console.error(e);if(e&&e.code==="permission-denied"){S.extDenied=true;scheduleRender()}}
-  unsubs.push(db.collection("months").limit(500).onSnapshot(function(q){var m={};q.docs.forEach(function(x){m[x.id]=x.data()});S.months=m;S.extDenied=false;if(!S.quest)scheduleRender()},onErr));
-  unsubs.push(db.collection("entries").limit(1000).onSnapshot(function(q){S.entries=q.docs.map(function(x){return Object.assign({id:x.id},x.data())});if(!S.quest)scheduleRender()},onErr));
-}
-
 /* ---------- shell ---------- */
-var KID_TABS=[["home","🏠","ホーム"],["sched","📅","よてい"],["study","✏️","べんきょう"],["treasure","🗺️","ぼうけん"],["money","👛","おかね"],["lists","🎁","リスト"],["promise","🤝","やくそく"],["stars","COIN","コイン"]];
-var PAR_TABS=[["dash","📊","ダッシュ"],["cal","📅","カレンダー"],["tests","📝","学習"],["review","📖","振り返り"],["pmoney","👛","お小遣い"],["promise","🤝","約束"],["settings","⚙️","設定"]];
+var KID_TABS=[["home","🏠","ホーム"],["sched","📅","よてい"],["study","✏️","べんきょう"],["money","👛","おかね"],["lists","🎁","リスト"],["promise","🤝","やくそく"],["stars","COIN","コイン"]];
+var PAR_TABS=[["dash","📊","ダッシュ"],["cal","📅","カレンダー"],["tests","📝","学習"],["pmoney","👛","お小遣い"],["promise","🤝","約束"],["settings","⚙️","設定"]];
 function render(){
   var app=document.getElementById("app"),kid=S.mode==="kid",tabs=kid?KID_TABS:PAR_TABS;
   if(S.auth!=="in"){
@@ -791,14 +465,12 @@ function render(){
   document.body.className=kid?"kid":"parent";
   var body;
   if(!S.ready)body='<div class="empty" style="margin-top:20px">データを読み込んでいます…</div>';
-  else body=({home:kidHome,sched:kidSchedule,study:kidStudy,money:kidMoney,lists:kidLists,promise:promisesView,stars:kidStars,treasure:kidTreasure,review:pReview,dash:pDash,cal:pCalendar,tests:pTests,pmoney:pMoney,settings:pSettings}[S.tab]||kidHome)();
+  else body=({home:kidHome,sched:kidSchedule,study:kidStudy,money:kidMoney,lists:kidLists,promise:promisesView,stars:kidStars,dash:pDash,cal:pCalendar,tests:pTests,pmoney:pMoney,settings:pSettings}[S.tab]||kidHome)();
   var warn=S.dbOk===false?'<div class="notice" style="margin-bottom:10px">いまは インターネットに つながっていないか、保存が できない じょうたいです。</div>':"";
   app.innerHTML='<div class="wrap"><header class="top"><div class="brand"><i><b style="background:var(--blue)"></b><b style="background:var(--yellow)"></b><b style="background:var(--pink)"></b><b style="background:var(--mint)"></b><b style="background:var(--purple)"></b></i>まなびの宝箱</div><button class="modebtn" data-act="mode">'+(kid?"🔒 保護者モード":"👦 子どもモードへ")+'</button></header>'+warn+'<main id="view">'+body+'</main></div>'+
   '<nav class="tabs" aria-label="メニュー"><div class="in">'+tabs.map(function(t){return '<button data-act="tab" data-v="'+t[0]+'" aria-current="'+(S.tab===t[0])+'"><span class="ic">'+(t[1]==="COIN"?coin(22):t[1])+"</span>"+t[2]+"</button>"}).join("")+"</div></nav>"+
   (S.pinOpen?'<div class="sheet-bg"><form class="sheet f" id="pinform"><div style="font-weight:900;font-size:17px">保護者モード</div><div class="sub">PINを入力してください</div><input id="pin-in" class="pinbox" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="PIN"><div class="sub" style="color:var(--pink)">'+esc(S.pinErr)+'</div><div class="row"><button type="button" class="btn ghost grow" data-act="pincancel">やめる</button><button class="btn grow" type="submit">ひらく</button></div></form></div>':"");
   if(S.imp)app.insertAdjacentHTML("beforeend",impSheet());
-  if(S.quest)app.insertAdjacentHTML("beforeend",questSheet());
-  enhanceMics();
   if(S.pinOpen){var pi=document.getElementById("pin-in");if(pi)pi.focus()}
 }
 function go(tab){S.tab=tab;render();window.scrollTo(0,0)}
@@ -891,7 +563,6 @@ function start(){
     unsubs.push(db.doc("app/settings").onSnapshot(function(s){S.settings=s.exists?Object.assign({},DEFAULT_SETTINGS,s.data()):null;mark()},onErr));
     unsubs.push(db.collection("checks").orderBy("updated","desc").limit(1000).onSnapshot(function(q){var m={};q.docs.forEach(function(x){m[x.id]=x.data()});S.checks=m;mark()},onErr));
     ["events","tests","money","wishes","goals","promises","rules","lessonlogs"].forEach(function(c){unsubs.push(db.collection(c).limit(1000).onSnapshot(function(q){S[c]=q.docs.map(function(x){return Object.assign({id:x.id},x.data())});mark()},onErr))});
-    subscribeExt();
   });
 }
 start();
