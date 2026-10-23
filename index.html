@@ -520,8 +520,50 @@ var QS=[
   {k:"parent",e:"✉️",cat:"おうちのひと",q:"おうちのひとから ひとこと",type:"parent"}
 ];
 var GEM_KEYS=QS.slice(0,11).map(function(x){return x.k});
-var ZCATS={like:{l:"だいすき",e:"❤️"},can:{l:"できた！",e:"🏆"},try:{l:"はじめて",e:"🚀"},find:{l:"はっけん",e:"🔍"},fun:{l:"たのしかった",e:"🧸"},dream:{l:"ゆめ",e:"🌈"}};
-var ZORDER=["like","can","try","find","fun","dream","photos"];
+var ZCATS={like:{l:"だいすき",e:"❤️"},can:{l:"できた！",e:"🏆"},try:{l:"はじめて",e:"🚀"},find:{l:"はっけん",e:"🔍"},fun:{l:"たのしかった",e:"🧸"},kind:{l:"やさしさ",e:"💗"},dream:{l:"ゆめ",e:"🌈"}};
+var ZORDER=["like","can","try","find","fun","kind","dream","photos"];
+var BY_LABEL={mom:"母の観察",kid:"本人の言葉",ai:"AIの仮説"};
+/* 初回登録レポート（2026年9月30日締め）。本人の言葉・母の観察・AIの仮説を区別。健康記録は含めない */
+var SEED0930={
+  entries:[
+    ["like","2026-06","おにくが だいすき。たのしみにして べんきょうを がんばった"],
+    ["like","2026-06","かんこくのりが すきに なった"],
+    ["like","2026-08","マンゴスチンが すきな くだものに なった"],
+    ["like","2026-09","シャインマスカット。おべんとうに いれてほしい"],
+    ["like","2026-09","あたらしい あかい くつ"],
+    ["like","2026-06","おりがみ"],
+    ["like","2026-09","ママと よむ えほん"],
+    ["like","2026-09","ママとの おふろ（しゅうに 1かいの たのしみ）"],
+    ["like","2026","かぞくとの おでかけや たいけん"],
+    ["like","2026-09","えいが『きめつの やいば』を ママと えいがかんで みた"],
+    ["can","2026","かんじや けいさんの べんきょうを つづけている"],
+    ["can","2026","テストで いい てんを とって よろこんだ"],
+    ["can","2026-06","おりがみに むちゅうに なって さくひんを つくった"],
+    ["can","2026-06","こまったことや きぼうを じぶんの ことばで つたえられた"],
+    ["try","2026-08","はじめての ラフティング。こわがらずに たのしんだ"],
+    ["try","2026","あたらしい たべものに であって、すきなものが ふえた"],
+    ["kind","2026-08","ラフティングで ママが みずに おちたとき、たすけようとした"],
+    ["kind","2026-06","つくった おりがみを Hくんに プレゼントした"],
+    ["kind","2026-09","ママに「だいすき」「あいしてる」と つたえている"],
+    ["fun","2026-08","ラフティングで ワクワクした かお"],
+    ["fun","2026-09-01","しぎょうしき。あたらしい あかい くつで よろこんだ"],
+    ["fun","2026-09-03","ねがおを かわいいと いわれて、はにかんで よろこんだ"],
+    ["fun","2026-09-04","ママと いっしょに おふろ。たのしそうに すごした"],
+    ["note","2026-06","学校で苦手に感じる相手がいることを伝え、席替えを希望した（保護者のみ表示）"],
+    ["note","2026","水泳などの習い事の記録あり。曜日・頻度・進級状況は未確認（保護者のみ表示）"],
+    ["note","2026","学童での活動やイベントに参加（保護者のみ表示）"]
+  ],
+  summary:"まるくんは すきなものを たくさん みつけたね。はじめての ラフティングも こわがらずに たのしんだね。ママや ともだちに やさしい きもちを つたえられたね。",
+  aiNotes:"【AIの仮説・性格診断ではありません】\n①すきなものを見つける力（食べ物・遊び・体験）\n②気持ちを伝える力（嬉しいこと・好き・苦手・希望）\n③新しい世界を楽しむ力（ラフティング・制作）\n④人への思いやり（ママを助けようとした・作品を贈った）\n⑤安心できる親子の時間（お風呂・絵本・愛情表現）\n未確認：好きな教科・好きな色・好きな音楽・将来の夢・今月の幸福度・本人の自己評価",
+  wishes:"自分の人生を自分で選んでほしい／経済的に自立してほしい／自分自身を好きでいてほしい／好きなことに挑戦してほしい／心から笑って過ごしてほしい／困ったときは安心して相談してほしい／大人になっても友達のように話せる親子でいたい／教育や経験の機会を十分に与えたい"
+};
+function importSeed(){if(!db){toast("いまは保存できません");return}
+  SEED0930.entries.forEach(function(x,i){var id="r0930-"+pad(i+1),doc={when:x[1],cat:x[0],text:x[2],src:"report0930",by:"mom",parentOnly:x[0]==="note",created:Date.now()};
+    S.entries=S.entries.filter(function(e){return e.id!==id});S.entries.push(Object.assign({id:id},doc));extWrite("entries",id,doc)});
+  var pd=Object.assign({},mdoc(PAST)||{},{month:PAST,summary:SEED0930.summary,summaryOk:false,aiNotes:SEED0930.aiNotes,wishes:SEED0930.wishes,source:"report0930",updated:Date.now()});
+  S.months[PAST]=pd;extWrite("months",PAST,pd);
+  var patch={seed0930:today()};if(!set().nickname)patch.nickname="まるくん";if(!set().grade)patch.grade="2";saveSettings(patch);
+  S.tb.cur=PAST;S.ai2={busy:false,text:null,err:""};render();toast("初回レポートを取り込みました（"+SEED0930.entries.length+"件）")}
 var PAST="upto-2026-09",FIRST_YM="2026-10";
 S.months={};S.entries=[];S.tb={view:"bouken",cur:tbYM(new Date()),zk:"like"};S.quest=null;S.bulk=null;S.ai2={busy:false,text:null,err:""};S.extDenied=false;S.restore=null;
 
@@ -558,7 +600,7 @@ function chestHTML(k){
 function tbRow(k){var d=S.months[k],md=MOODS[d.mood];
   var lines=[["すき","like"],["できた","can"],["はじめて","try"],["ゆめ","dream"]].filter(function(x){return filled(d,x[1])}).map(function(x){return "<div><b>"+x[0]+"</b>"+esc(d[x[1]])+"</div>"}).join("");
   var p=k.split("-"),lab=k===PAST?"〜2026<br>9がつ":p[0]+"<br>"+(+p[1])+"がつ";
-  return '<button class="tb-row" data-act="tbmonth" data-v="'+k+'"><span class="m"><i>'+(md?md.e:"🫧")+"</i>"+lab+'</span><span class="tx">'+(lines||'<div class="sub">きもちだけ きろく</div>')+'<div class="sub">ほうせき '+gemCount(d)+"こ</div></span></button>"}
+  return '<button class="tb-row" data-act="tbmonth" data-v="'+k+'"><span class="m"><i>'+(md?md.e:"🫧")+"</i>"+lab+'</span><span class="tx">'+(lines||(k===PAST&&d.source?'<div class="sub">おうちのひとの きろく</div>':'')||'<div class="sub">きもちだけ きろく</div>')+'<div class="sub">ほうせき '+gemCount(d)+"こ</div></span></button>"}
 function kidBouken(){
   var k=S.tb.cur,isPast=k===PAST,nowYM=tbYM(new Date()),ms=realMonths(),past=mdoc(PAST);
   var agoK=isPast?"":shiftYM(k,-12),ago=isPast?null:mdoc(agoK);
@@ -573,7 +615,7 @@ function kidBouken(){
 function zItems(k){var out=[];
   if(k==="photos"){Object.keys(S.months).forEach(function(m){var d=S.months[m];if(filled(d,"photos"))out.push({key:m===PAST?"2026-09-99":m,when:ymLabel(m,true),photos:d.photos})});return out.sort(function(a,b){return b.key.localeCompare(a.key)})}
   Object.keys(S.months).forEach(function(m){var d=S.months[m];if(filled(d,k))out.push({key:m===PAST?"2026-09-99":m,when:ymLabel(m,true),text:d[k]})});
-  S.entries.forEach(function(e){if(e.cat===k)out.push({key:e.when||"",when:whenLabel(e.when),text:e.text})});
+  S.entries.forEach(function(e){if(e.cat===k&&!e.parentOnly)out.push({key:e.when||"",when:whenLabel(e.when),text:e.text})});
   if(k==="can")S.lessonlogs.forEach(function(l){if(l.hanamaru&&l.memo)out.push({key:l.date||"",when:jdate(l.date)+" ・"+l.name,text:l.memo})});
   return out.sort(function(a,b){return b.key.localeCompare(a.key)})}
 function kidZukan(){
@@ -622,7 +664,7 @@ function pReview(){
   var st=d&&d.summaryOk?'<span class="st done">確定済み</span>':(aiText?'<span class="st draft">下書き</span>':"");
   if(!S.bulk)S.bulk=[{y:2026,m:9,cat:"can",text:""}];
   var opts=[PAST,k].concat(realMonths()).filter(function(v,i,a){return a.indexOf(v)===i}).sort().reverse();
-  var saved=S.entries.filter(function(e){return e.src==="bulk"}).sort(function(a,b){return (b.when||"").localeCompare(a.when||"")});
+  var saved=S.entries.filter(function(e){return e.src==="bulk"||e.src==="report0930"}).sort(function(a,b){return (b.when||"").localeCompare(a.when||"")});
   return '<h1>振り返り</h1><div class="sub">子どもの「ぼうけん」（月1回の振り返り）の管理と、10月より前の記録のまとめ入力</div>'+
   (S.extDenied?'<div class="notice" style="margin-top:10px">振り返りの記録を読み書きできませんでした。FirebaseのFirestoreルールで、months と entries のコレクションへのアクセスが許可されているか確認してください。</div>':"")+
   '<h2>月のまとめ'+st+'</h2><div class="card stack">'+
@@ -632,11 +674,15 @@ function pReview(){
       '<div class="row"><button class="btn ghost grow" data-act="r-ai"'+(S.ai2.busy?" disabled":"")+">"+(S.ai2.busy?"作っています…":"✨ AIで下書き")+'</button><button class="btn grow" data-act="r-ok">確定</button></div>'
      :'<div class="sub">この月はまだ記録がありません。</div>')+
     '<button class="btn ghost" data-act="quest" data-v="'+k+'">🗺️ この月のぼうけんを開く</button></div>'+
+  (d&&(d.aiNotes||d.wishes)?'<h2>'+ymLabel(k)+'のメモ（保護者のみ）</h2><div class="card stack">'+(d.wishes?'<div><b>🌈 ママが願っている未来</b><div class="sub" style="color:var(--fg)">'+esc(d.wishes)+'</div><div class="sub">これは母親の願いで、本人の将来の希望ではありません</div></div>':"")+(d.aiNotes?'<div style="white-space:pre-wrap" class="sub">'+esc(d.aiNotes)+'</div>':"")+'</div>':"")+
+  '<h2>📥 初回登録レポート（2026年9月30日締め）</h2><div class="card stack"><div class="sub">9月末までの「だいすき・できた・はじめて・やさしさ・おもいで」'+SEED0930.entries.length+'件と、まとめの下書き・ママの願い・AIの仮説を取り込みます。学校の困りごとや習い事のメモは保護者だけに表示します。健康記録はこのアプリには入れていません。</div>'+
+    (set().seed0930?'<div class="notice">'+jdate(set().seed0930)+'に取り込み済みです。もう一度押すと同じ内容で上書きします（重複はしません）。</div>':"")+
+    '<button class="btn" data-act="seed0930">'+(set().seed0930?"もう一度取り込む":"取り込む")+'</button></div>'+
   '<h2>📦 2026年9月までをまとめて入れる</h2><div class="card stack"><div class="sub">10月から毎月の記録を始める前の分です。時期と種類を選んで、何件でもまとめて保存できます。月が分からないときは「月？」のままで大丈夫です。</div>'+
     S.bulk.map(bulkRow).join("")+
     '<div class="row"><button class="btn ghost grow" data-act="b-add">＋ 行を増やす</button><button class="btn grow" data-act="b-save">まとめて保存</button></div>'+
     '<button class="btn ghost" data-act="quest" data-v="'+PAST+'">🗺️ 10の質問で「9月までの'+esc(kidName())+'」をまとめる</button></div>'+
-  (saved.length?'<h2>まとめ入力した記録（'+saved.length+'件）</h2>'+listOrEmpty(saved.map(function(e){return '<div class="li"><span class="tb-em">'+(ZCATS[e.cat]?ZCATS[e.cat].e:"⭐")+'</span><div class="main"><div class="meta">'+esc(whenLabel(e.when))+"</div><div>"+esc(e.text)+'</div></div><button class="btn small warn" data-act="b-del" data-id="'+e.id+'" aria-label="削除">✕</button></div>'}),""):"")+
+  (saved.length?'<h2>まとめ入力した記録（'+saved.length+'件）</h2>'+listOrEmpty(saved.map(function(e){return '<div class="li"><span class="tb-em">'+(ZCATS[e.cat]?ZCATS[e.cat].e:"📝")+'</span><div class="main"><div class="meta">'+esc(whenLabel(e.when))+(e.by?" ・"+BY_LABEL[e.by]:"")+(e.parentOnly?" ・保護者のみ":"")+"</div><div>"+esc(e.text)+'</div></div><button class="btn small warn" data-act="b-del" data-id="'+e.id+'" aria-label="削除">✕</button></div>'}),""):"")+
   '<h2>💾 データの保存（バックアップ）</h2><div class="card stack"><div class="sub">記録はFirebaseに自動で保存されています。念のため、全部の記録を1つのファイルにしてスマホに残せます。月に1回ほど保存しておくと安心です。</div>'+
     '<button class="btn" data-act="bk-save">全部の記録をファイルに保存</button>'+
     '<label class="btn ghost photo-btn" for="bk-in">📂 バックアップから戻す</label><input id="bk-in" type="file" accept=".json,application/json" hidden>'+
@@ -710,6 +756,7 @@ document.addEventListener("click",function(e){
     S.bulk=null;render();toast(rows.length+"件 保存しました");return}
   if(a==="b-del"){var id=b.dataset.id;S.entries=S.entries.filter(function(x){return x.id!==id});render();extWrite("entries",id,null);return}
   if(a==="bk-save"){saveBackup();return}
+  if(a==="seed0930"){importSeed();return}
   if(a==="bk-cancel"){S.restore=null;render();return}
   if(a==="bk-go"){runRestore();return}
 });
